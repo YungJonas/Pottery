@@ -7,6 +7,8 @@ interface Props {
 
 const { title, description = "Handmade pottery, shaped by hand, one piece at a time.", image } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+import "../styles/global.css";
 ---
 
 <!doctype html>
@@ -29,7 +31,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:description" content={description} />
     {image && <meta name="twitter:image" content={image} />}
 
-    <link rel="stylesheet" href="/src/styles/global.css" />
     <script>
       document.addEventListener("alpine:init", () => {
         Alpine.store("cart", {
