@@ -1,0 +1,59 @@
+---
+import Vase from "./Vase.astro";
+---
+
+<footer class="bg-terra text-paper px-7 pt-16 pb-6 relative overflow-hidden">
+  <!-- Top section -->
+  <div class="pb-16 border-b border-paper/30">
+    <h2 class="font-serif text-[clamp(48px,7vw,124px)] font-light leading-[.92] tracking-tight">
+      <span class="block">Made by hand.</span>
+      <span class="block italic">Shipped with care.</span>
+    </h2>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid grid-cols-[1.5fr_repeat(3,1fr)] gap-8 py-12">
+    <!-- Brand -->
+    <div class="flex flex-col gap-2.5 text-sm">
+      <span class="flex items-center gap-2.5 font-sans font-semibold text-lg uppercase tracking-[.04em] mb-2">
+        <Vase shape="Spiral" fill="#F6F1E6" />
+        Pottery <span class="opacity-50">/</span> Shop
+      </span>
+      <p class="opacity-85 leading-relaxed max-w-[30ch]">
+        A small studio firing limited runs of stoneware vessels and tableware. Open by appointment.
+      </p>
+    </div>
+
+    <!-- Shop links -->
+    <div class="flex flex-col gap-2.5 text-sm">
+      <h4 class="font-mono text-[11px] tracking-[.12em] uppercase opacity-65 font-medium mb-1.5">Shop</h4>
+      <a href="/shop" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">All Pieces</a>
+      <a href="/shop" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Cups</a>
+      <a href="/shop" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Bowls</a>
+      <a href="/shop" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Vases</a>
+    </div>
+
+    <!-- Studio links -->
+    <div class="flex flex-col gap-2.5 text-sm">
+      <h4 class="font-mono text-[11px] tracking-[.12em] uppercase opacity-65 font-medium mb-1.5">Studio</h4>
+      <a href="/about" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">About</a>
+      <a href="/contact" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Contact</a>
+      <a href="/contact" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Wholesale</a>
+    </div>
+
+    <!-- Elsewhere -->
+    <div class="flex flex-col gap-2.5 text-sm">
+      <h4 class="font-mono text-[11px] tracking-[.12em] uppercase opacity-65 font-medium mb-1.5">Elsewhere</h4>
+      <a class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Instagram ↗</a>
+      <a class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Are.na ↗</a>
+      <a class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">RSS ↗</a>
+    </div>
+  </div>
+
+  <!-- Bottom rule -->
+  <div class="flex justify-between py-6 border-t border-paper/30 font-mono text-[11px] tracking-[.1em] uppercase opacity-85">
+    <span>&copy; 2026 Pottery Shop Studio</span>
+    <span>VAT XX-XXXX XX XXX</span>
+    <span>Shaped · Glazed · Shipped</span>
+  </div>
+</footer>

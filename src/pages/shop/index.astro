@@ -1,44 +1,63 @@
 ---
-import Base from "../../layouts/Base.astro";
+import "../../styles/global.css";
+import TopBar from "../../components/TopBar.astro";
+import Shop from "../../components/Shop.astro";
+import Footer from "../../components/Footer.astro";
 import { sanity, urlFor } from "../../lib/sanity";
+import { mapSanityProduct } from "../../data/products";
 
-const products = await sanity.fetch(
+const rawProducts = await sanity.fetch(
   `*[_type == "product"]{
-    _id, title, price, "slug": slug.current, images, available
+    _id, title, price, description, "slug": slug.current,
+    "category": category,
+    "imageUrl": images[0].asset->url,
+    available
   } | order(available desc, title asc)`
 );
+
+const products = rawProducts.map((p: any, i: number) => mapSanityProduct(p, i));
+const categories = [...new Set(products.map((p: any) => p.category))] as string[];
+
+const description = "Browse our collection of handmade pottery.";
+const title = "Shop";
 ---
 
-<Base title="Shop" description="Browse our collection of handmade pottery.">
-  <main class="mx-auto max-w-5xl px-4 py-12">
-    <h1 class="mb-8 text-3xl font-bold text-stone-800">Shop</h1>
-
-    {products.length === 0 ? (
-      <p class="text-stone-500">No products available right now. Check back soon!</p>
-    ) : (
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {products.map((p: any) => (
-          <a
-            href={`/shop/${p.slug}`}
-            class:list={["group relative", !p.available && "opacity-50 grayscale"]}
-          >
-            {p.images?.[0] && (
-              <img
-                src={urlFor(p.images[0]).width(400).height(400).url()}
-                alt={p.title}
-                class="aspect-square w-full rounded-lg object-cover transition group-hover:opacity-90"
-              />
-            )}
-            {!p.available && (
-              <span class="absolute top-3 left-3 rounded bg-stone-800 px-2 py-1 text-xs text-white">
-                Sold Out
-              </span>
-            )}
-            <h3 class="mt-3 font-medium text-stone-800">{p.title}</h3>
-            <p class="text-sm text-stone-600">${p.price.toFixed(2)}</p>
-          </a>
-        ))}
-      </div>
-    )}
-  </main>
-</Base>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <title>{title} | Pottery Shop</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={`${title} | Pottery Shop`} />
+    <meta property="og:description" content={description} />
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.store("cart", {
+          items: JSON.parse(localStorage.getItem("cart") || "[]"),
+          add(item) {
+            const existing = this.items.find((i) => i.id === item.id);
+            if (existing) { existing.qty += 1; } else { this.items.push({ ...item, qty: 1 }); }
+            this.save();
+          },
+          remove(id) { this.items = this.items.filter((i) => i.id !== id); this.save(); },
+          clear() { this.items = []; this.save(); },
+          save() { localStorage.setItem("cart", JSON.stringify(this.items)); },
+          get count() { return this.items.reduce((sum, i) => sum + i.qty, 0); },
+          get total() { return this.items.reduce((sum, i) => sum + i.price * i.qty, 0); },
+        });
+      });
+    </script>
+  </head>
+  <body class="min-h-screen" x-data>
+    <TopBar />
+    <main>
+      <Shop products={products} categories={categories} />
+    </main>
+    <Footer />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  </body>
+</html>

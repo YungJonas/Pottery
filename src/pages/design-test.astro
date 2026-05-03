@@ -1,0 +1,129 @@
+---
+import Base from "../layouts/Base.astro";
+import Vase from "../components/Vase.astro";
+
+const colors = [
+  { name: "bone", hex: "#EFE7DA" },
+  { name: "ink", hex: "#1C1B17" },
+  { name: "paper", hex: "#F6F1E6" },
+  { name: "terra", hex: "#B5532A" },
+  { name: "navy", hex: "#22364A" },
+  { name: "olive", hex: "#5C6233" },
+  { name: "sage", hex: "#8FA17A" },
+  { name: "sand", hex: "#A8916C" },
+  { name: "cream", hex: "#E9DEC9" },
+  { name: "charcoal", hex: "#2A2925" },
+];
+---
+
+<Base title="Design System Test">
+  <main class="mx-auto max-w-5xl px-6 py-12">
+    <!-- PALETTE -->
+    <section class="mb-16">
+      <h2 class="font-mono text-xs uppercase tracking-widest text-ink/60 mb-6">01 / Palette</h2>
+      <div class="grid grid-cols-5 gap-3 sm:grid-cols-10">
+        {colors.map((c) => (
+          <div class="text-center">
+            <div class="aspect-square rounded-md border border-ink/10" style={`background:${c.hex}`}></div>
+            <p class="mt-2 font-mono text-[10px] uppercase tracking-wide">{c.name}</p>
+            <p class="font-mono text-[10px] text-ink/50">{c.hex}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- TYPOGRAPHY -->
+    <section class="mb-16">
+      <h2 class="font-mono text-xs uppercase tracking-widest text-ink/60 mb-6">02 / Typography</h2>
+
+      <div class="space-y-8">
+        <div>
+          <p class="font-mono text-[10px] uppercase tracking-wide text-ink/50 mb-2">Fraunces — Display Serif</p>
+          <p class="font-serif text-5xl font-light tracking-tight">Handmade pottery</p>
+          <p class="font-serif text-3xl italic font-light tracking-tight mt-2">shaped by hand</p>
+        </div>
+
+        <div>
+          <p class="font-mono text-[10px] uppercase tracking-wide text-ink/50 mb-2">Space Grotesk — Sans / UI</p>
+          <p class="font-sans text-lg font-medium">Every piece is one of a kind</p>
+          <p class="font-sans text-sm text-ink/70 mt-1">Body text in Space Grotesk. Clean, geometric, readable at small sizes.</p>
+        </div>
+
+        <div>
+          <p class="font-mono text-[10px] uppercase tracking-wide text-ink/50 mb-2">JetBrains Mono — Labels / Eyebrows</p>
+          <p class="font-mono text-xs uppercase tracking-widest">Edition 1 of 12 — Berlin 2025</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- VASES -->
+    <section class="mb-16">
+      <h2 class="font-mono text-xs uppercase tracking-widest text-ink/60 mb-6">03 / Vase Silhouettes</h2>
+
+      <div class="grid grid-cols-4 gap-6 sm:grid-cols-6 lg:grid-cols-12">
+        <div class="text-center">
+          <Vase shape="Totem" fill="#B5532A" class="h-24 mx-auto" />
+          <p class="font-mono text-[10px] mt-2">Totem</p>
+        </div>
+        <div class="text-center">
+          <Vase shape="Amphora" fill="#22364A" class="h-24 mx-auto" />
+          <p class="font-mono text-[10px] mt-2">Amphora</p>
+        </div>
+        <div class="text-center">
+          <Vase shape="Bottle" fill="#5C6233" class="h-24 mx-auto" />
+          <p class="font-mono text-[10px] mt-2">Bottle</p>
+        </div>
+        <div class="text-center">
+          <Vase shape="Donut" fill="#A8916C" class="h-24 mx-auto" />
+          <p class="font-mono text-[10px] mt-2">Donut</p>
+        </div>
+        <div class="text-center">
+          <Vase shape="Handle" fill="#2A2925" class="h-24 mx-auto" />
+          <p class="font-mono text-[10px] mt-2">Handle</p>
+        </div>
+        <div class="text-center">
+          <Vase shape="Wavy" fill="#E9DEC9" class="h-24 mx-auto" />
+          <p class="font-mono text-[10px] mt-2">Wavy</p>
+        </div>
+        <div class="text-center">
+          <Vase shape="Goblet" fill="#B5532A" class="h-24 mx-auto" />
+          <p class="font-mono text-[10px] mt-2">Goblet</p>
+        </div>
+        <div class="text-center">
+          <Vase shape="Bowl" fill="#22364A" class="h-16 mx-auto" />
+          <p class="font-mono text-[10px] mt-2">Bowl</p>
+        </div>
+        <div class="text-center">
+          <Vase shape="Plate" fill="#8FA17A" class="h-16 mx-auto" />
+          <p class="font-mono text-[10px] mt-2">Plate</p>
+        </div>
+        <div class="text-center">
+          <Vase shape="Cup" fill="#5C6233" class="h-16 mx-auto" />
+          <p class="font-mono text-[10px] mt-2">Cup</p>
+        </div>
+        <div class="text-center">
+          <Vase shape="Jug" fill="#A8916C" class="h-24 mx-auto" />
+          <p class="font-mono text-[10px] mt-2">Jug</p>
+        </div>
+        <div class="text-center">
+          <Vase shape="Spiral" fill="#1C1B17" class="mx-auto" />
+          <p class="font-mono text-[10px] mt-2">Spiral</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRAIN CHECK -->
+    <section class="mb-16">
+      <h2 class="font-mono text-xs uppercase tracking-widest text-ink/60 mb-6">04 / Paper Grain</h2>
+      <p class="text-sm text-ink/60">The subtle noise overlay should be visible across this entire page. Check the background texture.</p>
+      <div class="mt-4 grid grid-cols-2 gap-4">
+        <div class="rounded-lg bg-paper p-8 border border-ink/5">
+          <p class="font-serif text-2xl font-light">Paper panel</p>
+        </div>
+        <div class="rounded-lg bg-cream p-8 border border-ink/5">
+          <p class="font-serif text-2xl font-light">Cream panel</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</Base>

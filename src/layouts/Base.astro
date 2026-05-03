@@ -16,6 +16,9 @@ import "../styles/global.css";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" />
     <title>{title} | Pottery Shop</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
@@ -71,7 +74,7 @@ import "../styles/global.css";
       });
     </script>
   </head>
-  <body class="min-h-screen bg-stone-50 text-stone-900 font-sans" x-data>
+  <body class="min-h-screen" x-data>
     <header class="border-b border-stone-200 bg-white">
       <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
         <a href="/" class="text-xl font-bold tracking-tight text-stone-800">

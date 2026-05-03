@@ -1,0 +1,58 @@
+---
+import Vase from "./Vase.astro";
+---
+
+<header class="sticky top-0 z-50 border-b border-ink bg-bone">
+  <!-- Main row -->
+  <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-6 px-7 py-[18px] border-b border-ink/20">
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-2.5 justify-self-start">
+      <span class="text-terra">
+        <Vase shape="Spiral" fill="#B5532A" class="w-7 h-7" />
+      </span>
+      <span class="font-sans text-sm font-semibold uppercase tracking-[.04em]">
+        Pottery <span class="opacity-40 font-light px-0.5">/</span> Shop
+      </span>
+    </a>
+
+    <!-- Nav -->
+    <nav class="flex gap-7 text-[13px] font-medium uppercase tracking-[.06em]">
+      <a href="/shop" class="relative py-1.5 hover:after:content-[''] hover:after:absolute hover:after:inset-x-0 hover:after:bottom-0 hover:after:h-px hover:after:bg-current">Shop</a>
+      <a href="/about" class="relative py-1.5 hover:after:content-[''] hover:after:absolute hover:after:inset-x-0 hover:after:bottom-0 hover:after:h-px hover:after:bg-current">About</a>
+      <a href="/contact" class="relative py-1.5 hover:after:content-[''] hover:after:absolute hover:after:inset-x-0 hover:after:bottom-0 hover:after:h-px hover:after:bg-current">Contact</a>
+    </nav>
+
+    <!-- Right -->
+    <div class="flex items-center gap-[18px] justify-self-end text-xs uppercase tracking-[.06em]">
+      <span class="font-mono opacity-70">Berlin ⟶ 52.5°N</span>
+      <a href="/cart" class="inline-flex items-center gap-2 font-semibold tracking-[.08em] hover:-translate-y-px transition-transform">
+        <span>Bag</span>
+        <span
+          x-text="$store.cart.count.toString().padStart(2, '0')"
+          class="inline-flex items-center justify-center w-[26px] h-[26px] rounded-full bg-terra text-paper text-[11px] font-semibold tabular-nums"
+        >00</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Marquee -->
+  <div class="overflow-hidden border-b border-ink/20 h-9 flex items-center">
+    <div class="flex whitespace-nowrap animate-marquee font-mono text-xs tracking-[.1em]">
+      {Array.from({ length: 6 }).map(() => (
+        <span class="pr-12">
+          HANDMADE POTTERY <em class="not-italic px-4 opacity-40">·</em> SLOW MORNINGS <em class="not-italic px-4 opacity-40">·</em> SHIPPED FROM THE STUDIO <em class="not-italic px-4 opacity-40">·</em> FREE SHIPPING OVER €120 <em class="not-italic px-4 opacity-40">·</em>
+        </span>
+      ))}
+    </div>
+  </div>
+</header>
+
+<style>
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: marquee 60s linear infinite;
+  }
+</style>

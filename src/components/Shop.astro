@@ -1,0 +1,46 @@
+---
+import ProductCard from "./ProductCard.astro";
+import type { Product } from "../data/products";
+
+interface Props {
+  products: Product[];
+  categories: string[];
+}
+
+const { products, categories } = Astro.props;
+const filters = ["All", ...categories];
+---
+
+<section class="pb-24">
+  <!-- Header -->
+  <div class="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-8 items-end px-7 pt-16 pb-9 max-w-[1400px]">
+    <div>
+      <span class="font-mono text-xs tracking-[.1em] uppercase opacity-65 inline-block mb-[18px]">[ 01 ] Catalogue</span>
+      <h2 class="font-serif text-[clamp(40px,6vw,88px)] leading-[.95] font-normal tracking-tight">
+        All pieces, currently<br/>on the shelf.
+      </h2>
+    </div>
+
+    <!-- Filter pills -->
+    <div class="flex flex-wrap gap-2 md:justify-end" x-data="{ filter: 'All' }">
+      {filters.map((f) => (
+        <button
+          x-on:click={`filter = '${f}'; document.querySelectorAll('[data-category]').forEach(el => { el.style.display = ('${f}' === 'All' || el.dataset.category === '${f}') ? '' : 'none'; })`}
+          x-bind:class={`filter === '${f}' ? 'bg-ink text-paper border-ink' : 'border-ink'`}
+          class="px-4 py-2.5 text-xs tracking-[.08em] uppercase font-semibold border rounded-full hover:-translate-y-px transition-all"
+        >
+          {f}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Product grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 px-7">
+    {products.map((p, i) => (
+      <div data-category={p.category}>
+        <ProductCard product={p} index={i} />
+      </div>
+    ))}
+  </div>
+</section>
