@@ -1,0 +1,106 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+}
+
+const { title, description = "Handmade pottery, shaped by hand, one piece at a time.", image } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | Pottery Shop</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={`${title} | Pottery Shop`} />
+    <meta property="og:description" content={description} />
+    {image && <meta property="og:image" content={image} />}
+
+    <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={`${title} | Pottery Shop`} />
+    <meta name="twitter:description" content={description} />
+    {image && <meta name="twitter:image" content={image} />}
+
+    <link rel="stylesheet" href="/src/styles/global.css" />
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.store("cart", {
+          items: JSON.parse(localStorage.getItem("cart") || "[]"),
+
+          add(item) {
+            const existing = this.items.find((i) => i.id === item.id);
+            if (existing) {
+              existing.qty += 1;
+            } else {
+              this.items.push({ ...item, qty: 1 });
+            }
+            this.save();
+          },
+
+          remove(id) {
+            this.items = this.items.filter((i) => i.id !== id);
+            this.save();
+          },
+
+          clear() {
+            this.items = [];
+            this.save();
+          },
+
+          save() {
+            localStorage.setItem("cart", JSON.stringify(this.items));
+          },
+
+          get count() {
+            return this.items.reduce((sum, i) => sum + i.qty, 0);
+          },
+
+          get total() {
+            return this.items.reduce((sum, i) => sum + i.price * i.qty, 0);
+          },
+        });
+      });
+    </script>
+  </head>
+  <body class="min-h-screen bg-stone-50 text-stone-900 font-sans" x-data>
+    <header class="border-b border-stone-200 bg-white">
+      <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
+        <a href="/" class="text-xl font-bold tracking-tight text-stone-800">
+          Pottery Shop
+        </a>
+        <div class="flex items-center gap-6 text-sm">
+          <a href="/shop" class="hover:text-stone-600">Shop</a>
+          <a href="/about" class="hover:text-stone-600">About</a>
+          <a href="/contact" class="hover:text-stone-600">Contact</a>
+          <a href="/cart" class="relative hover:text-stone-600">
+            Cart
+            <span
+              x-show="$store.cart.count > 0"
+              x-text="$store.cart.count"
+              class="absolute -top-2 -right-4 flex h-5 w-5 items-center justify-center rounded-full bg-stone-800 text-xs text-white"
+            ></span>
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <slot />
+
+    <footer class="mt-16 border-t border-stone-200 py-8 text-center text-sm text-stone-500">
+      <p>&copy; {new Date().getFullYear()} Pottery Shop. All rights reserved.</p>
+    </footer>
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+  </body>
+</html>

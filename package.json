@@ -1,0 +1,21 @@
+{
+  "name": "pottery-shop",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@sanity/client": "^7.3.0",
+    "@sanity/image-url": "^1.1.0",
+    "astro": "^5.8.0",
+    "stripe": "^17.7.0",
+    "@astrojs/sitemap": "^3.3.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.0",
+    "@tailwindcss/vite": "^4.1.0"
+  }
+}

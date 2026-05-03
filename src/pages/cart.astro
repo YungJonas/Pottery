@@ -1,0 +1,68 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="Cart" description="Review your cart and checkout.">
+  <main class="mx-auto max-w-2xl px-4 py-12" x-data>
+    <h1 class="text-3xl font-bold text-stone-800">Cart</h1>
+
+    <template x-if="$store.cart.items.length === 0">
+      <div class="mt-8">
+        <p class="text-stone-500">Your cart is empty.</p>
+        <a href="/shop" class="mt-4 inline-block text-sm text-stone-600 underline">
+          Continue shopping
+        </a>
+      </div>
+    </template>
+
+    <template x-if="$store.cart.items.length > 0">
+      <div class="mt-8">
+        <ul class="divide-y divide-stone-200">
+          <template x-for="item in $store.cart.items" :key="item.id">
+            <li class="flex items-center gap-4 py-4">
+              <img
+                :src="item.image"
+                :alt="item.title"
+                class="h-16 w-16 rounded object-cover"
+              />
+              <div class="flex-1">
+                <p class="font-medium text-stone-800" x-text="item.title"></p>
+                <p class="text-sm text-stone-500">
+                  <span x-text="'$' + item.price.toFixed(2)"></span>
+                  <span class="mx-1">&times;</span>
+                  <span x-text="item.qty"></span>
+                </p>
+              </div>
+              <button
+                x-on:click="$store.cart.remove(item.id)"
+                class="text-sm text-stone-400 hover:text-stone-700"
+              >
+                Remove
+              </button>
+            </li>
+          </template>
+        </ul>
+
+        <div class="mt-6 flex items-center justify-between border-t border-stone-200 pt-6">
+          <p class="text-lg font-semibold text-stone-800">
+            Total: <span x-text="'$' + $store.cart.total.toFixed(2)"></span>
+          </p>
+          <button
+            x-on:click="
+              fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items: $store.cart.items })
+              })
+              .then(r => r.json())
+              .then(data => { if (data.url) window.location.href = data.url; })
+            "
+            class="rounded bg-stone-800 px-6 py-3 text-sm text-white hover:bg-stone-700"
+          >
+            Checkout
+          </button>
+        </div>
+      </div>
+    </template>
+  </main>
+</Base>

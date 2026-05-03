@@ -1,0 +1,44 @@
+---
+import Base from "../../layouts/Base.astro";
+import { sanity, urlFor } from "../../lib/sanity";
+
+const products = await sanity.fetch(
+  `*[_type == "product"]{
+    _id, title, price, "slug": slug.current, images, available
+  } | order(available desc, title asc)`
+);
+---
+
+<Base title="Shop" description="Browse our collection of handmade pottery.">
+  <main class="mx-auto max-w-5xl px-4 py-12">
+    <h1 class="mb-8 text-3xl font-bold text-stone-800">Shop</h1>
+
+    {products.length === 0 ? (
+      <p class="text-stone-500">No products available right now. Check back soon!</p>
+    ) : (
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {products.map((p: any) => (
+          <a
+            href={`/shop/${p.slug}`}
+            class:list={["group relative", !p.available && "opacity-50 grayscale"]}
+          >
+            {p.images?.[0] && (
+              <img
+                src={urlFor(p.images[0]).width(400).height(400).url()}
+                alt={p.title}
+                class="aspect-square w-full rounded-lg object-cover transition group-hover:opacity-90"
+              />
+            )}
+            {!p.available && (
+              <span class="absolute top-3 left-3 rounded bg-stone-800 px-2 py-1 text-xs text-white">
+                Sold Out
+              </span>
+            )}
+            <h3 class="mt-3 font-medium text-stone-800">{p.title}</h3>
+            <p class="text-sm text-stone-600">${p.price.toFixed(2)}</p>
+          </a>
+        ))}
+      </div>
+    )}
+  </main>
+</Base>

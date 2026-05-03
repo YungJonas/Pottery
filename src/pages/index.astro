@@ -1,0 +1,48 @@
+---
+import Base from "../layouts/Base.astro";
+import { sanity, urlFor } from "../lib/sanity";
+
+const products = await sanity.fetch(
+  `*[_type == "product" && available == true][0...4]{
+    _id, title, price, "slug": slug.current, images
+  }`
+);
+---
+
+<Base title="Home" description="Handmade pottery, shaped by hand, one piece at a time. Browse our collection.">
+  <section class="mx-auto max-w-5xl px-4 py-20 text-center">
+    <h1 class="text-5xl font-bold tracking-tight text-stone-800">
+      Handmade Pottery
+    </h1>
+    <p class="mt-4 text-lg text-stone-600">
+      Each piece is shaped by hand, one at a time.
+    </p>
+    <a
+      href="/shop"
+      class="mt-8 inline-block rounded bg-stone-800 px-6 py-3 text-sm text-white hover:bg-stone-700"
+    >
+      Browse the Shop
+    </a>
+  </section>
+
+  {products.length > 0 && (
+    <section class="mx-auto max-w-5xl px-4 pb-16">
+      <h2 class="mb-8 text-2xl font-semibold text-stone-800">Featured</h2>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {products.map((p: any) => (
+          <a href={`/shop/${p.slug}`} class="group">
+            {p.images?.[0] && (
+              <img
+                src={urlFor(p.images[0]).width(400).height(400).url()}
+                alt={p.title}
+                class="aspect-square w-full rounded-lg object-cover transition group-hover:opacity-90"
+              />
+            )}
+            <h3 class="mt-3 font-medium text-stone-800">{p.title}</h3>
+            <p class="text-sm text-stone-600">${p.price.toFixed(2)}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+</Base>
