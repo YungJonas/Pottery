@@ -1,5 +1,6 @@
 ---
 import Vase from "./Vase.astro";
+import CartButton from "./CartButton";
 ---
 
 <header class="sticky top-0 z-50 border-b border-ink bg-bone">
@@ -25,13 +26,7 @@ import Vase from "./Vase.astro";
     <!-- Right -->
     <div class="flex items-center gap-[18px] justify-self-end text-xs uppercase tracking-[.06em]">
       <span class="font-mono opacity-70">Berlin ⟶ 52.5°N</span>
-      <a href="/cart" class="inline-flex items-center gap-2 font-semibold tracking-[.08em] hover:-translate-y-px transition-transform">
-        <span>Bag</span>
-        <span
-          x-text="$store.cart.count.toString().padStart(2, '0')"
-          class="inline-flex items-center justify-center w-[26px] h-[26px] rounded-full bg-terra text-paper text-[11px] font-semibold tabular-nums"
-        >00</span>
-      </a>
+      <CartButton client:load />
     </div>
   </div>
 

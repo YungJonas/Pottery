@@ -1,5 +1,6 @@
 export interface Product {
   id: string;
+  slug: string;
   name: string;
   category: string;
   shape: "Totem" | "Amphora" | "Bottle" | "Donut" | "Handle" | "Wavy" | "Goblet" | "Bowl" | "Plate" | "Cup" | "Jug" | "Spiral";
@@ -23,6 +24,7 @@ export function mapSanityProduct(raw: any, index: number): Product {
   const category = raw.category || "Uncategorized";
   return {
     id: raw._id,
+    slug: raw.slug || "",
     name: raw.title,
     category,
     shape: SHAPE_MAP[category] || "Bottle",

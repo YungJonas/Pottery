@@ -1,12 +1,16 @@
 ---
 import Base from "../../layouts/Base.astro";
+import AddToCartButton from "../../components/AddToCartButton";
 import { sanity, urlFor } from "../../lib/sanity";
+import { mapSanityProduct } from "../../data/products";
 
 const { slug } = Astro.params;
 
 const product = await sanity.fetch(
   `*[_type == "product" && slug.current == $slug][0]{
-    _id, title, description, price, images, available
+    _id, title, description, price, images, available,
+    "category": category,
+    "imageUrl": images[0].asset->url
   }`,
   { slug }
 );
@@ -15,6 +19,7 @@ if (!product) {
   return Astro.redirect("/shop");
 }
 
+const mapped = mapSanityProduct(product, 0);
 const ogImage = product.images?.[0]
   ? urlFor(product.images[0]).width(1200).height(630).url()
   : undefined;
@@ -62,30 +67,26 @@ const ogImage = product.images?.[0]
           <p class="mt-6 text-stone-600 leading-relaxed">{product.description}</p>
         )}
 
-        <button
-          x-data
-          x-on:click={`$store.cart.add({ id: '${product._id}', title: '${product.title.replace(/'/g, "\\'")}', price: ${product.price}, image: '${product.images?.[0] ? urlFor(product.images[0]).width(150).height(150).url() : ""}' })`}
-          class="mt-8 w-full rounded bg-stone-800 px-6 py-3 text-sm text-white hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={!product.available}
-        >
-          {product.available ? "Add to Cart" : "Sold Out"}
-        </button>
-
-        {product.available && (
+        {product.available ? (
+          <div class="mt-8">
+            <AddToCartButton
+              client:visible
+              productId={mapped.id}
+              productName={mapped.name}
+              price={mapped.price}
+              shape={mapped.shape}
+              color={mapped.color}
+              category={mapped.category}
+              edition={mapped.edition}
+              imageUrl={mapped.imageUrl}
+            />
+          </div>
+        ) : (
           <button
-            x-data
-            x-on:click={`
-              fetch('/api/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ items: [{ title: '${product.title.replace(/'/g, "\\'")}', price: ${product.price}, qty: 1 }] })
-              })
-              .then(r => r.json())
-              .then(data => { if (data.url) window.location.href = data.url; })
-            `}
-            class="mt-3 w-full rounded border border-stone-800 px-6 py-3 text-sm text-stone-800 hover:bg-stone-100"
+            class="mt-8 w-full rounded-full bg-ink/20 text-ink/50 px-6 py-3 text-sm uppercase tracking-[.06em] font-semibold cursor-not-allowed"
+            disabled
           >
-            Buy Now
+            Sold Out
           </button>
         )}
       </div>
