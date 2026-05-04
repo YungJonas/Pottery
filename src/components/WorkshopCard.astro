@@ -1,0 +1,82 @@
+---
+import Vase from "./Vase.astro";
+
+const VASE_SHAPES = ["Amphora", "Bottle", "Goblet", "Jug"] as const;
+
+interface Props {
+  workshop: {
+    _id: string;
+    title: string;
+    slug: string;
+    description?: string;
+    date: string;
+    time: string;
+    location: string;
+    price: number;
+    maxParticipants: number;
+    imageUrl?: string;
+  };
+  index: number;
+  total: number;
+}
+
+const WORKSHOP_COLORS = ["#B5532A", "#A8916C", "#22364A", "#5C6233"];
+
+const { workshop, index, total } = Astro.props;
+const bg = WORKSHOP_COLORS[index % 4];
+const vaseShape = VASE_SHAPES[index % VASE_SHAPES.length];
+
+const dateObj = new Date(workshop.date + "T00:00:00");
+const day = dateObj.getDate();
+const month = dateObj.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+const year = dateObj.getFullYear();
+const counter = `${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
+---
+
+<a href={`/workshops/${workshop.slug}`} class="group block">
+  <article
+    class="aspect-[4/5] flex flex-col justify-between p-5 sm:p-6 overflow-hidden relative"
+    style={`background-color: ${bg};`}
+  >
+    <!-- Top bar -->
+    <div class="flex justify-between items-start font-mono text-[10px] tracking-[.12em] uppercase text-paper">
+      <span>{counter}</span>
+      <span>{month} {day}</span>
+    </div>
+
+    <!-- Title -->
+    <div class="mt-4 flex-1">
+      <h3 class="font-serif text-[clamp(24px,3vw,36px)] leading-[1.05] font-normal uppercase text-paper tracking-tight">
+        {workshop.title}
+      </h3>
+    </div>
+
+    <!-- Center vase -->
+    <div class="flex-1 flex items-center justify-center overflow-hidden">
+      <Vase shape={vaseShape} fill="rgba(255,255,255,0.15)" class="h-full max-h-[55%] w-auto transition-transform duration-300 group-hover:-translate-y-1.5" />
+    </div>
+
+    <!-- Bottom metadata -->
+    <div class="mt-auto">
+      <div class="border-t border-paper/30 pt-3">
+        <div class="flex justify-between items-end font-mono text-[10px] tracking-[.12em] uppercase text-paper">
+          <div class="flex gap-4">
+            <div>
+              <span class="block opacity-60">Time</span>
+              <span>{workshop.time}</span>
+            </div>
+            <div>
+              <span class="block opacity-60">Location</span>
+              <span>{workshop.location}</span>
+            </div>
+            <div>
+              <span class="block opacity-60">Price</span>
+              <span>&euro;{workshop.price}</span>
+            </div>
+          </div>
+          <span class="text-paper/60">{year}</span>
+        </div>
+      </div>
+    </div>
+  </article>
+</a>
