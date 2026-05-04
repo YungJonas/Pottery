@@ -1,21 +1,14 @@
 ---
 import Vase from "./Vase.astro";
+import type { Workshop } from "../data/workshops";
 
 const VASE_SHAPES = ["Amphora", "Bottle", "Goblet", "Jug"] as const;
 
 interface Props {
-  workshop: {
-    _id: string;
-    title: string;
-    slug: string;
-    description?: string;
-    date: string;
-    time: string;
-    location: string;
-    price: number;
-    maxParticipants: number;
-    imageUrl?: string;
-  };
+  workshop: Pick<
+    Workshop,
+    "title" | "slug" | "date" | "time" | "location" | "price"
+  >;
   index: number;
   total: number;
 }

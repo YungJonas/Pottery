@@ -9,12 +9,15 @@ interface Props {
 
 const { products, categories } = Astro.props;
 const filters = ["All", ...categories];
+
+const requested = Astro.url.searchParams.get("category");
+const selected = requested && filters.includes(requested) ? requested : "All";
 ---
 
 <section class="pb-24">
   <!-- Header -->
-  <div class="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-8 items-end px-7 pt-16 pb-9 max-w-[1400px]">
-    <div>
+  <div class="grid grid-cols-12 gap-x-5 items-end px-7 pt-16 pb-9">
+    <div class="col-span-12 lg:col-span-7">
       <span class="font-mono text-xs tracking-[.1em] uppercase opacity-65 inline-block mb-[18px]">[ 02 ] Catalogue</span>
       <h2 class="font-serif text-[clamp(40px,6vw,88px)] leading-[.95] font-normal tracking-tight">
         All pieces, currently<br/>on the shelf.
@@ -22,12 +25,16 @@ const filters = ["All", ...categories];
     </div>
 
     <!-- Filter pills -->
-    <div class="flex flex-wrap gap-2 md:justify-end" x-data="{ filter: 'All' }">
+    <div class="col-span-12 lg:col-span-5 flex flex-wrap gap-2 lg:justify-end" x-data={`{ filter: '${selected}' }`}>
       {filters.map((f) => (
         <button
-          x-on:click={`filter = '${f}'; document.querySelectorAll('[data-category]').forEach(el => { el.style.display = ('${f}' === 'All' || el.dataset.category === '${f}') ? '' : 'none'; })`}
+          data-filter={f}
+          x-on:click={`filter = '${f}'; document.querySelectorAll('[data-category]').forEach(el => { el.style.display = ('${f}' === 'All' || el.dataset.category === '${f}') ? '' : 'none'; }); { const u = new URL(window.location.href); if ('${f}' === 'All') u.searchParams.delete('category'); else u.searchParams.set('category', '${f}'); history.replaceState(null, '', u); }`}
           x-bind:class={`filter === '${f}' ? 'bg-ink text-paper border-ink' : 'border-ink'`}
-          class="px-4 py-2.5 text-xs tracking-[.08em] uppercase font-semibold border rounded-full hover:-translate-y-px transition-all"
+          class:list={[
+            "px-4 py-2.5 text-xs tracking-[.08em] uppercase font-semibold border rounded-full hover:-translate-y-px transition-all",
+            f === selected ? "bg-ink text-paper border-ink" : "border-ink",
+          ]}
         >
           {f}
         </button>
@@ -36,11 +43,14 @@ const filters = ["All", ...categories];
   </div>
 
   <!-- Product grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 px-7">
-    {products.map((p, i) => (
-      <div data-category={p.category}>
-        <ProductCard product={p} index={i} />
-      </div>
-    ))}
+  <div class="grid grid-cols-12 gap-5 px-7">
+    {products.map((p, i) => {
+      const visible = selected === "All" || p.category === selected;
+      return (
+        <div class="col-span-12 sm:col-span-6 lg:col-span-3" data-category={p.category || ""} style={visible ? undefined : "display:none"}>
+          <ProductCard product={p} index={i} />
+        </div>
+      );
+    })}
   </div>
 </section>

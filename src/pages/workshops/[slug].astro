@@ -1,21 +1,32 @@
 ---
 import Base from "../../layouts/Base.astro";
 import AddToCartButton from "../../components/AddToCartButton";
+import WorkshopCard from "../../components/WorkshopCard.astro";
 import { sanity, urlFor } from "../../lib/sanity";
+import { mapSanityWorkshop, isUpcoming, isPast } from "../../data/workshops";
 
 const { slug } = Astro.params;
 
-const workshop = await sanity.fetch(
+const raw = await sanity.fetch(
   `*[_type == "workshop" && slug.current == $slug][0]{
-    _id, title, description, date, time, location, price, maxParticipants, image,
-    "imageUrl": image.asset->url
+    _id, title, description, date, startTime, endTime, time, location, price,
+    maxParticipants, spotsRemaining, skillLevel, includes, bring, instructor,
+    images, image,
+    "slug": slug.current,
+    "imageUrl": coalesce(images[0].asset->url, image.asset->url),
+    "imageUrls": images[].asset->url
   }`,
   { slug }
 );
 
-if (!workshop) {
-  return Astro.redirect("/");
+if (!raw) {
+  return Astro.redirect("/workshops");
 }
+
+const workshop = mapSanityWorkshop(raw);
+const isPastWorkshop = isPast(workshop.date);
+const isSoldOut = workshop.spotsRemaining === 0;
+const bookable = !isPastWorkshop && !isSoldOut;
 
 const dateObj = new Date(workshop.date + "T00:00:00");
 const formattedDate = dateObj.toLocaleDateString("en-US", {
@@ -25,74 +36,216 @@ const formattedDate = dateObj.toLocaleDateString("en-US", {
   day: "numeric",
 });
 
-const ogImage = workshop.image
-  ? urlFor(workshop.image).width(1200).height(630).url()
-  : undefined;
+// OG image (use the original image source if we have it, otherwise the URL we already resolved)
+const ogSource = raw.images?.[0] || raw.image;
+const ogImage = ogSource ? urlFor(ogSource).width(1200).height(630).url() : undefined;
+
+// Resolve gallery image URLs from raw sources for crisp delivery
+const galleryImages: string[] = (() => {
+  if (raw.images && raw.images.length > 0) {
+    return raw.images
+      .slice(0, 4)
+      .map((img: any) => urlFor(img).width(1200).height(900).fit("crop").url());
+  }
+  if (raw.image) {
+    return [urlFor(raw.image).width(1200).height(900).fit("crop").url()];
+  }
+  return [];
+})();
+
+// Other upcoming workshops (exclude current)
+const rawOthers = await sanity.fetch(
+  `*[_type == "workshop" && slug.current != $slug && date >= $today]{
+    _id, title, description, date, startTime, endTime, time, location, price,
+    maxParticipants, spotsRemaining,
+    "slug": slug.current,
+    "imageUrl": coalesce(images[0].asset->url, image.asset->url)
+  } | order(date asc) [0...3]`,
+  { slug, today: new Date().toISOString().slice(0, 10) }
+);
+const others = rawOthers.map((w: any) => mapSanityWorkshop(w));
+
+const skillLevelLabel: Record<string, string> = {
+  beginner: "Beginner",
+  intermediate: "Intermediate",
+  "all-levels": "All levels",
+};
 ---
 
 <Base
   title={workshop.title}
-  description={workshop.description || `${workshop.title} — pottery workshop.`}
+  description={workshop.description || `${workshop.title} — pottery workshop in Berlin.`}
   image={ogImage}
 >
-  <main class="mx-auto max-w-5xl px-4 py-12">
-    <a href="/" class="text-sm text-stone-500 hover:text-stone-700">&larr; Back to overview</a>
+  <!-- Breadcrumb -->
+  <nav class="px-7 pt-8 font-mono text-[11px] tracking-[.12em] uppercase opacity-65">
+    <a href="/workshops" class="hover:opacity-100 hover:underline underline-offset-[3px]">Workshops</a>
+    <span class="px-2 opacity-40">/</span>
+    <span>{workshop.title}</span>
+  </nav>
 
-    <div class="mt-8 grid grid-cols-1 gap-10 md:grid-cols-2">
-      <!-- Image -->
-      <div>
-        {workshop.image && (
-          <img
-            src={urlFor(workshop.image).width(600).height(600).url()}
-            alt={workshop.title}
-            class="w-full rounded-lg object-cover"
-          />
+  <main class="grid grid-cols-12 gap-x-10 lg:gap-x-16 px-7 pt-6 pb-24">
+    <!-- Image / Gallery -->
+      <div class="col-span-12 md:col-span-6">
+        {galleryImages.length > 0 ? (
+          <div class="border border-ink overflow-hidden bg-cream aspect-[4/5]">
+            <img
+              src={galleryImages[0]}
+              alt={workshop.title}
+              class="w-full h-full object-cover"
+            />
+          </div>
+        ) : (
+          <div class="border border-ink aspect-[4/5] bg-terra flex items-center justify-center">
+            <span class="font-serif text-paper text-3xl text-center px-6">{workshop.title}</span>
+          </div>
+        )}
+
+        {galleryImages.length > 1 && (
+          <div class="mt-3 grid grid-cols-4 gap-2">
+            {galleryImages.slice(1).map((src) => (
+              <div class="aspect-square border border-ink/30 overflow-hidden bg-cream">
+                <img src={src} alt="" class="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
-      <!-- Details -->
-      <div>
-        <span class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65">Workshop</span>
-        <h1 class="mt-1 text-3xl font-bold text-stone-800">{workshop.title}</h1>
-        <p class="mt-2 text-xl text-stone-600">&euro;{workshop.price.toFixed(2)}</p>
+      <!-- Hero / Meta -->
+      <div class="col-span-12 md:col-span-6 flex flex-col gap-6">
+        <div>
+          <span class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65">Workshop</span>
+          <h1 class="mt-2 font-serif text-[clamp(36px,5vw,64px)] leading-[1] tracking-tight font-normal">
+            {workshop.title}
+          </h1>
+        </div>
 
-        <dl class="mt-6 space-y-3 text-sm text-stone-600">
-          <div class="flex gap-3">
-            <dt class="font-semibold w-24 shrink-0">Date</dt>
-            <dd>{formattedDate}</dd>
+        <dl class="grid grid-cols-2 gap-x-6 gap-y-4 py-5 border-y border-ink/20">
+          <div>
+            <dt class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65 mb-1">Date</dt>
+            <dd class="text-[14px]">{formattedDate}</dd>
           </div>
-          <div class="flex gap-3">
-            <dt class="font-semibold w-24 shrink-0">Time</dt>
-            <dd>{workshop.time}</dd>
+          {workshop.time && (
+            <div>
+              <dt class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65 mb-1">Time</dt>
+              <dd class="text-[14px] tabular-nums">{workshop.time}</dd>
+            </div>
+          )}
+          <div>
+            <dt class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65 mb-1">Location</dt>
+            <dd class="text-[14px]">{workshop.location}</dd>
           </div>
-          <div class="flex gap-3">
-            <dt class="font-semibold w-24 shrink-0">Location</dt>
-            <dd>{workshop.location}</dd>
+          <div>
+            <dt class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65 mb-1">Price</dt>
+            <dd class="text-[14px] font-mono tabular-nums">€{workshop.price}</dd>
           </div>
-          <div class="flex gap-3">
-            <dt class="font-semibold w-24 shrink-0">Seats</dt>
-            <dd>Max. {workshop.maxParticipants} participants</dd>
+          <div>
+            <dt class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65 mb-1">Spots</dt>
+            <dd class="text-[14px]">
+              {isPastWorkshop
+                ? "Past session"
+                : isSoldOut
+                  ? "Sold out"
+                  : `${workshop.spotsRemaining} of ${workshop.maxParticipants} left`}
+            </dd>
           </div>
+          {workshop.skillLevel && (
+            <div>
+              <dt class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65 mb-1">Level</dt>
+              <dd class="text-[14px]">{skillLevelLabel[workshop.skillLevel]}</dd>
+            </div>
+          )}
         </dl>
 
+        <!-- CTA -->
+        <div>
+          {bookable ? (
+            <AddToCartButton
+              client:visible
+              productId={workshop.id}
+              productName={`${workshop.title} — seat`}
+              price={workshop.price}
+              shape="Bowl"
+              color="terra"
+              category="Workshop"
+              edition="seat"
+              imageUrl={workshop.imageUrl}
+            />
+          ) : (
+            <button
+              class="px-6 py-3 rounded-full bg-ink/10 text-ink/40 text-xs tracking-[.06em] uppercase font-semibold cursor-not-allowed"
+              disabled
+            >
+              {isPastWorkshop ? "Past workshop" : "Sold out"}
+            </button>
+          )}
+        </div>
+
         {workshop.description && (
-          <p class="mt-6 text-stone-600 leading-relaxed">{workshop.description}</p>
+          <div class="pt-4 border-t border-ink/20">
+            <h2 class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65 mb-3">About</h2>
+            <p class="text-[15px] leading-relaxed opacity-85 whitespace-pre-line">
+              {workshop.description}
+            </p>
+          </div>
         )}
 
-        <div class="mt-8">
-          <AddToCartButton
-            client:visible
-            productId={workshop._id}
-            productName={workshop.title}
-            price={workshop.price}
-            shape="Bowl"
-            color="terra"
-            category="Workshop"
-            edition="seat"
-            imageUrl={workshop.imageUrl}
-          />
-        </div>
+        {workshop.includes.length > 0 && (
+          <div class="pt-4 border-t border-ink/20">
+            <h2 class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65 mb-3">What's included</h2>
+            <ul class="space-y-2 text-[15px] leading-relaxed opacity-85">
+              {workshop.includes.map((item) => (
+                <li class="flex gap-3"><span class="opacity-50 select-none">·</span>{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {workshop.bring.length > 0 && (
+          <div class="pt-4 border-t border-ink/20">
+            <h2 class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65 mb-3">What to bring</h2>
+            <ul class="space-y-2 text-[15px] leading-relaxed opacity-85">
+              {workshop.bring.map((item) => (
+                <li class="flex gap-3"><span class="opacity-50 select-none">·</span>{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {workshop.instructor && workshop.instructor.name && (
+          <div class="pt-4 border-t border-ink/20">
+            <h2 class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65 mb-3">Instructor</h2>
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-full bg-terra text-paper flex items-center justify-center font-serif text-lg shrink-0">
+                {workshop.instructor.name.charAt(0)}
+              </div>
+              <div>
+                <p class="font-serif text-xl">{workshop.instructor.name}</p>
+                {workshop.instructor.bio && (
+                  <p class="mt-1 text-[14px] leading-relaxed opacity-80">{workshop.instructor.bio}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+
+    <!-- Other upcoming workshops -->
+    {others.length > 0 && (
+      <section class="col-span-12 mt-24 border-t border-ink/20 pt-16">
+        <div class="grid grid-cols-12 gap-5">
+          <div class="col-span-12 flex items-baseline justify-between mb-9">
+            <span class="font-mono text-xs tracking-[.1em] uppercase opacity-65">Other upcoming workshops</span>
+            <a href="/workshops" class="font-mono text-xs tracking-[.1em] uppercase opacity-65 hover:opacity-100 hover:underline underline-offset-[3px]">All workshops →</a>
+          </div>
+          {others.map((w, i) => (
+            <div class="col-span-12 sm:col-span-6 lg:col-span-4">
+              <WorkshopCard workshop={w} index={i} total={others.length} />
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
   </main>
 </Base>

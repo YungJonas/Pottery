@@ -4,50 +4,71 @@ import Shop from "../components/Shop.astro";
 import WorkshopCard from "../components/WorkshopCard.astro";
 import { sanity } from "../lib/sanity";
 import { mapSanityProduct } from "../data/products";
+import { mapSanityWorkshop, isUpcoming } from "../data/workshops";
 
-const workshops = await sanity.fetch(
+const rawWorkshops = await sanity.fetch(
   `*[_type == "workshop"]{
-    _id, title, description, date, time, location, price, maxParticipants,
+    _id, title, description, date, startTime, endTime, time, location, price,
+    maxParticipants, spotsRemaining, skillLevel, includes, bring, instructor,
     "slug": slug.current,
-    "imageUrl": image.asset->url
+    "imageUrl": coalesce(images[0].asset->url, image.asset->url),
+    "imageUrls": images[].asset->url
   } | order(date asc)`
 );
+const allWorkshops = rawWorkshops.map((w: any) => mapSanityWorkshop(w));
+const upcomingWorkshops = allWorkshops.filter((w) => isUpcoming(w.date)).slice(0, 3);
 
 const rawProducts = await sanity.fetch(
   `*[_type == "product"]{
-    _id, title, price, description, "slug": slug.current,
-    "category": category,
+    _id, title, price, description, shortDescription, care, dimensions, status,
+    "slug": slug.current,
+    category,
     "imageUrl": images[0].asset->url,
+    "imageUrls": images[].asset->url,
     available
   } | order(available desc, title asc)`
 );
 const products = rawProducts.map((p: any, i: number) => mapSanityProduct(p, i));
-const categories = [...new Set(products.map((p: any) => p.category))] as string[];
+const categories = [...new Set(products.map((p) => p.category).filter(Boolean))] as string[];
 ---
 
 <Base title="Home" description="Handmade pottery and workshops — shaped by hand, one piece at a time.">
   <!-- Hero -->
-  <section class="px-7 pt-20 pb-10 max-w-[1400px]">
-    <h1 class="font-serif text-[clamp(48px,8vw,110px)] leading-[.92] font-normal tracking-tight">
-      Shaped by hand,<br/>one piece at a time.
-    </h1>
-    <p class="mt-5 text-[15px] leading-relaxed opacity-70 max-w-md">
-      Browse our collection of handmade pottery and join a workshop to create your own.
-    </p>
+  <section class="grid grid-cols-12 gap-x-5 px-7 pt-20 pb-10">
+    <div class="col-span-12 lg:col-span-8">
+      <h1 class="font-serif text-[clamp(48px,8vw,110px)] leading-[.92] font-normal tracking-tight">
+        Shaped by hand,<br/>one piece at a time.
+      </h1>
+      <p class="mt-5 text-[15px] leading-relaxed opacity-70 max-w-md">
+        Browse our collection of handmade pottery and join a workshop to create your own.
+      </p>
+    </div>
   </section>
 
   <!-- Workshops -->
-  {workshops.length > 0 && (
+  {upcomingWorkshops.length > 0 && (
     <section class="pb-20">
-      <div class="px-7 pt-8 pb-9 max-w-[1400px]">
-        <span class="font-mono text-xs tracking-[.1em] uppercase opacity-65 inline-block mb-[18px]">[ 01 ] Workshops</span>
-        <h2 class="font-serif text-[clamp(40px,6vw,88px)] leading-[.95] font-normal tracking-tight">
-          Learn the craft,<br/>hands in clay.
-        </h2>
+      <div class="grid grid-cols-12 gap-x-5 px-7 pt-8 pb-9">
+        <div class="col-span-12 lg:col-span-8">
+          <span class="font-mono text-xs tracking-[.1em] uppercase opacity-65 inline-block mb-[18px]">[ 01 ] Workshops</span>
+          <h2 class="font-serif text-[clamp(40px,6vw,88px)] leading-[.95] font-normal tracking-tight">
+            Learn the craft,<br/>hands in clay.
+          </h2>
+        </div>
+        <div class="col-span-12 lg:col-span-4 lg:flex lg:justify-end lg:items-end">
+          <a
+            href="/workshops"
+            class="inline-block px-4 py-2.5 border border-ink rounded-full text-xs tracking-[.08em] uppercase font-semibold hover:bg-ink hover:text-paper transition-colors"
+          >
+            All workshops →
+          </a>
+        </div>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 px-7 max-w-[1400px]">
-        {workshops.map((w: any, i: number) => (
-          <WorkshopCard workshop={w} index={i} total={workshops.length} />
+      <div class="grid grid-cols-12 gap-5 px-7">
+        {upcomingWorkshops.map((w, i) => (
+          <div class="col-span-12 sm:col-span-6 lg:col-span-4">
+            <WorkshopCard workshop={w} index={i} total={upcomingWorkshops.length} />
+          </div>
         ))}
       </div>
     </section>

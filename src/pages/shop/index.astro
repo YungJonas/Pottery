@@ -6,14 +6,16 @@ import { mapSanityProduct } from "../../data/products";
 
 const rawProducts = await sanity.fetch(
   `*[_type == "product"]{
-    _id, title, price, description, "slug": slug.current,
-    "category": category,
+    _id, title, price, description, shortDescription, care, dimensions, status,
+    "slug": slug.current,
+    category,
     "imageUrl": images[0].asset->url,
+    "imageUrls": images[].asset->url,
     available
   } | order(available desc, title asc)`
 );
 const products = rawProducts.map((p: any, i: number) => mapSanityProduct(p, i));
-const categories = [...new Set(products.map((p: any) => p.category))] as string[];
+const categories = [...new Set(products.map((p) => p.category).filter(Boolean))] as string[];
 ---
 
 <Base title="Shop" description="Browse our collection of handmade pottery.">

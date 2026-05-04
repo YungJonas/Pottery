@@ -19,16 +19,66 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "category",
+      title: "Category",
+      type: "string",
+      options: {
+        list: [
+          { title: "Cups", value: "Cups" },
+          { title: "Bowls", value: "Bowls" },
+          { title: "Vases", value: "Vases" },
+          { title: "Plates", value: "Plates" },
+          { title: "Jugs", value: "Jugs" },
+        ],
+        layout: "radio",
+      },
+    }),
+    defineField({
+      name: "shortDescription",
+      title: "Short description",
+      description: "Single sentence shown on cards and detail meta block.",
+      type: "string",
+    }),
+    defineField({
       name: "description",
       title: "Description",
+      type: "text",
+      rows: 5,
+    }),
+    defineField({
+      name: "price",
+      title: "Price (EUR)",
+      type: "number",
+      validation: (rule) => rule.required().positive(),
+    }),
+    defineField({
+      name: "dimensions",
+      title: "Dimensions (cm)",
+      type: "object",
+      fields: [
+        defineField({ name: "height", title: "Height", type: "number" }),
+        defineField({ name: "width", title: "Width", type: "number" }),
+      ],
+    }),
+    defineField({
+      name: "care",
+      title: "Care instructions",
       type: "text",
       rows: 3,
     }),
     defineField({
-      name: "price",
-      title: "Price",
-      type: "number",
-      validation: (rule) => rule.required().positive(),
+      name: "status",
+      title: "Status",
+      description: "Replaces the legacy 'available' boolean once filled in.",
+      type: "string",
+      options: {
+        list: [
+          { title: "Open — for sale", value: "open" },
+          { title: "Sold", value: "sold" },
+          { title: "Reserved", value: "reserved" },
+        ],
+        layout: "radio",
+      },
     }),
     defineField({
       name: "images",
@@ -38,7 +88,8 @@ export default defineType({
     }),
     defineField({
       name: "available",
-      title: "Available",
+      title: "Available (legacy)",
+      description: "Kept for backward compatibility. Prefer 'status' above.",
       type: "boolean",
       initialValue: true,
     }),

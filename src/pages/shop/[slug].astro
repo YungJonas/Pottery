@@ -1,95 +1,267 @@
 ---
 import Base from "../../layouts/Base.astro";
 import AddToCartButton from "../../components/AddToCartButton";
+import ProductCard from "../../components/ProductCard.astro";
 import { sanity, urlFor } from "../../lib/sanity";
-import { mapSanityProduct } from "../../data/products";
+import { mapSanityProduct, type Product } from "../../data/products";
 
 const { slug } = Astro.params;
 
-const product = await sanity.fetch(
+const raw = await sanity.fetch(
   `*[_type == "product" && slug.current == $slug][0]{
-    _id, title, description, price, images, available,
-    "category": category,
-    "imageUrl": images[0].asset->url
+    _id, title, description, shortDescription, care, dimensions, status, price,
+    images, available,
+    category,
+    "slug": slug.current,
+    "imageUrl": images[0].asset->url,
+    "imageUrls": images[].asset->url
   }`,
   { slug }
 );
 
-if (!product) {
+if (!raw) {
   return Astro.redirect("/shop");
 }
 
-const mapped = mapSanityProduct(product, 0);
-const ogImage = product.images?.[0]
-  ? urlFor(product.images[0]).width(1200).height(630).url()
+const product = mapSanityProduct(raw, 0);
+const ogImage = raw.images?.[0]
+  ? urlFor(raw.images[0]).width(1200).height(630).url()
   : undefined;
+
+// Up to 6 images for gallery
+const galleryImages = (raw.images || []).slice(0, 6);
+const mainImage = galleryImages[0]
+  ? urlFor(galleryImages[0]).width(900).height(900).fit("crop").url()
+  : null;
+
+// Related: same category, exclude current, limit 3 — fall back to any-other-products
+let related: Product[] = [];
+if (product.category) {
+  const rawRelated = await sanity.fetch(
+    `*[_type == "product" && category == $category && slug.current != $slug][0...3]{
+      _id, title, price, description, shortDescription, status,
+      category,
+      "slug": slug.current,
+      "imageUrl": images[0].asset->url,
+      available
+    }`,
+    { category: product.category, slug }
+  );
+  related = rawRelated.map((p: any, i: number) => mapSanityProduct(p, i));
+}
+if (related.length === 0) {
+  const rawRelated = await sanity.fetch(
+    `*[_type == "product" && slug.current != $slug][0...3]{
+      _id, title, price, description, shortDescription, status,
+      category,
+      "slug": slug.current,
+      "imageUrl": images[0].asset->url,
+      available
+    }`,
+    { slug }
+  );
+  related = rawRelated.map((p: any, i: number) => mapSanityProduct(p, i));
+}
+
+const statusLabel: Record<string, string> = {
+  open: "Available",
+  sold: "Sold",
+  reserved: "Reserved",
+};
+const statusBorder: Record<string, string> = {
+  open: "border-olive text-olive",
+  sold: "border-terra text-terra",
+  reserved: "border-sand text-sand",
+};
 ---
 
 <Base
-  title={product.title}
-  description={product.description || `${product.title} — handmade pottery.`}
+  title={product.name}
+  description={product.shortDescription || product.description || `${product.name} — handmade pottery.`}
   image={ogImage}
 >
-  <main class="mx-auto max-w-5xl px-4 py-12">
-    <a href="/shop" class="text-sm text-stone-500 hover:text-stone-700">&larr; Back to shop</a>
+  <!-- Breadcrumb -->
+  <nav class="px-7 pt-8 font-mono text-[11px] tracking-[.12em] uppercase opacity-65">
+    <a href="/shop" class="hover:opacity-100 hover:underline underline-offset-[3px]">Shop</a>
+    <span class="px-2 opacity-40">/</span>
+    <span>{product.name}</span>
+  </nav>
 
-    <div class="mt-8 grid grid-cols-1 gap-10 md:grid-cols-2">
-      <div class:list={[!product.available && "opacity-50 grayscale"]}>
-        {product.images?.length > 0 && (
-          <img
-            src={urlFor(product.images[0]).width(600).height(600).url()}
-            alt={product.title}
-            class="w-full rounded-lg object-cover"
-          />
-        )}
-        {product.images?.length > 1 && (
-          <div class="mt-4 grid grid-cols-4 gap-2">
-            {product.images.slice(1).map((img: any) => (
-              <img
-                src={urlFor(img).width(150).height(150).url()}
-                alt={product.title}
-                class="rounded object-cover aspect-square"
-              />
-            ))}
+  <main class="grid grid-cols-12 gap-x-10 lg:gap-x-16 px-7 pt-6 pb-24">
+    <!-- Gallery -->
+      <div class:list={["col-span-12 md:col-span-6", product.status !== "open" && "opacity-60"]}>
+        <div class="border border-ink bg-cream aspect-square flex items-center justify-center overflow-hidden">
+          {mainImage ? (
+            <img
+              id="product-main-image"
+              src={mainImage}
+              alt={product.name}
+              class="w-full h-full object-cover"
+            />
+          ) : (
+            <span class="font-mono text-xs tracking-[.12em] uppercase opacity-50">No image</span>
+          )}
+        </div>
+
+        {galleryImages.length > 1 && (
+          <div class="mt-3 grid grid-cols-6 gap-2">
+            {galleryImages.map((img: any, i: number) => {
+              const thumb = urlFor(img).width(180).height(180).fit("crop").url();
+              const full = urlFor(img).width(900).height(900).fit("crop").url();
+              return (
+                <button
+                  type="button"
+                  data-thumb
+                  data-full={full}
+                  class:list={[
+                    "aspect-square border bg-cream overflow-hidden transition-opacity",
+                    i === 0 ? "border-ink" : "border-ink/30 hover:border-ink",
+                  ]}
+                  aria-label={`Image ${i + 1}`}
+                >
+                  <img src={thumb} alt="" class="w-full h-full object-cover" />
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
 
-      <div>
-        <h1 class="text-3xl font-bold text-stone-800">{product.title}</h1>
-        <p class="mt-2 text-xl text-stone-600">${product.price.toFixed(2)}</p>
+      <!-- Meta -->
+      <div class="col-span-12 md:col-span-6 flex flex-col gap-6">
+        <div>
+          <div class="flex items-center gap-2 mb-3 flex-wrap">
+            {product.category && (
+              <span class="px-2.5 py-1.5 border border-ink rounded-full text-[10px] tracking-[.1em] uppercase opacity-85">
+                {product.category}
+              </span>
+            )}
+            <span class:list={[
+              "px-2.5 py-1.5 border rounded-full text-[10px] tracking-[.1em] uppercase font-semibold",
+              statusBorder[product.status],
+            ]}>
+              {statusLabel[product.status]}
+            </span>
+          </div>
 
-        {!product.available && (
-          <p class="mt-3 text-sm font-medium text-red-600">Sold Out</p>
+          <h1 class="font-serif text-[clamp(36px,5vw,64px)] leading-[1] tracking-tight font-normal">
+            {product.name}
+          </h1>
+
+          <p class="mt-4 font-mono text-lg font-medium tabular-nums">€{product.price}</p>
+
+          {product.shortDescription && (
+            <p class="mt-4 text-[15px] leading-relaxed opacity-80 max-w-md">
+              {product.shortDescription}
+            </p>
+          )}
+        </div>
+
+        {product.dimensions && (product.dimensions.h || product.dimensions.w) && (
+          <dl class="grid grid-cols-2 gap-x-8 gap-y-2 py-5 border-y border-ink/20 max-w-sm">
+            {product.dimensions.h !== undefined && (
+              <>
+                <dt class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65">Height</dt>
+                <dd class="font-mono text-sm tabular-nums">{product.dimensions.h} cm</dd>
+              </>
+            )}
+            {product.dimensions.w !== undefined && (
+              <>
+                <dt class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65">Width</dt>
+                <dd class="font-mono text-sm tabular-nums">{product.dimensions.w} cm</dd>
+              </>
+            )}
+          </dl>
         )}
 
-        {product.description && (
-          <p class="mt-6 text-stone-600 leading-relaxed">{product.description}</p>
-        )}
-
-        {product.available ? (
-          <div class="mt-8">
+        <!-- CTA -->
+        <div>
+          {product.status === "open" ? (
             <AddToCartButton
               client:visible
-              productId={mapped.id}
-              productName={mapped.name}
-              price={mapped.price}
-              shape={mapped.shape}
-              color={mapped.color}
-              category={mapped.category}
-              edition={mapped.edition}
-              imageUrl={mapped.imageUrl}
+              productId={product.id}
+              productName={product.name}
+              price={product.price}
+              shape={product.shape}
+              color={product.color}
+              category={product.category || "Piece"}
+              edition={product.edition}
+              imageUrl={product.imageUrl}
             />
+          ) : (
+            <button
+              class="px-6 py-3 rounded-full bg-ink/10 text-ink/40 text-xs tracking-[.06em] uppercase font-semibold cursor-not-allowed"
+              disabled
+            >
+              {statusLabel[product.status]}
+            </button>
+          )}
+        </div>
+
+        {product.description && (
+          <div class="pt-4 border-t border-ink/20">
+            <h2 class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65 mb-3">About this piece</h2>
+            <p class="text-[15px] leading-relaxed opacity-85 whitespace-pre-line">
+              {product.description}
+            </p>
           </div>
-        ) : (
-          <button
-            class="mt-8 w-full rounded-full bg-ink/20 text-ink/50 px-6 py-3 text-sm uppercase tracking-[.06em] font-semibold cursor-not-allowed"
-            disabled
-          >
-            Sold Out
-          </button>
         )}
+
+        <!-- Care -->
+        <details class="border-t border-ink/20 pt-4 group">
+          <summary class="flex justify-between items-center cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+            <h2 class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65">Care</h2>
+            <span class="font-mono text-xs opacity-50 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="mt-3 text-[14px] leading-relaxed opacity-80 whitespace-pre-line">
+            {product.care || "Hand-wash with mild soap and warm water. Avoid prolonged soaking. Dishwasher and microwave safe unless noted otherwise — but hand-washing keeps the glaze brightest."}
+          </div>
+        </details>
+
+        <!-- Shipping -->
+        <details class="border-t border-ink/20 pt-4 group">
+          <summary class="flex justify-between items-center cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+            <h2 class="font-mono text-[10px] tracking-[.12em] uppercase opacity-65">Shipping</h2>
+            <span class="font-mono text-xs opacity-50 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="mt-3 text-[14px] leading-relaxed opacity-80">
+            <p>Shipped from the Berlin studio within 3–5 business days. Each piece is wrapped by hand.</p>
+            <p class="mt-2"><strong class="font-medium">Free shipping on orders over €120</strong> within the EU. International orders calculated at checkout.</p>
+          </div>
+        </details>
       </div>
-    </div>
+
+    <!-- Related -->
+    {related.length > 0 && (
+      <section class="col-span-12 mt-24 border-t border-ink/20 pt-16">
+        <div class="grid grid-cols-12 gap-5">
+          <div class="col-span-12 flex items-baseline justify-between mb-9">
+            <span class="font-mono text-xs tracking-[.1em] uppercase opacity-65">More from the shelf</span>
+            <a href="/shop" class="font-mono text-xs tracking-[.1em] uppercase opacity-65 hover:opacity-100 hover:underline underline-offset-[3px]">View all →</a>
+          </div>
+          {related.map((p, i) => (
+            <div class="col-span-12 sm:col-span-6 lg:col-span-4">
+              <ProductCard product={p} index={i} />
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
   </main>
 </Base>
+
+<script>
+  // Thumbnail click → swap main image
+  const thumbs = document.querySelectorAll<HTMLButtonElement>("[data-thumb]");
+  const main = document.getElementById("product-main-image") as HTMLImageElement | null;
+  thumbs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const full = btn.dataset.full;
+      if (full && main) main.src = full;
+      thumbs.forEach((b) => {
+        b.classList.toggle("border-ink", b === btn);
+        b.classList.toggle("border-ink/30", b !== btn);
+      });
+    });
+  });
+</script>

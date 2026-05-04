@@ -12,9 +12,9 @@ import Vase from "./Vase.astro";
   </div>
 
   <!-- Grid -->
-  <div class="grid grid-cols-[1.5fr_repeat(3,1fr)] gap-8 py-12">
+  <div class="grid grid-cols-12 gap-x-5 py-12">
     <!-- Brand -->
-    <div class="flex flex-col gap-2.5 text-sm">
+    <div class="col-span-12 lg:col-span-4 flex flex-col gap-2.5 text-sm">
       <span class="flex items-center gap-2.5 font-sans font-semibold text-lg uppercase tracking-[.04em] mb-2">
         <Vase shape="Spiral" fill="#F6F1E6" />
         Pottery <span class="opacity-50">/</span> Shop
@@ -25,16 +25,16 @@ import Vase from "./Vase.astro";
     </div>
 
     <!-- Shop links -->
-    <div class="flex flex-col gap-2.5 text-sm">
+    <div class="col-span-4 lg:col-span-2 lg:col-start-7 flex flex-col gap-2.5 text-sm">
       <h4 class="font-mono text-[11px] tracking-[.12em] uppercase opacity-65 font-medium mb-1.5">Shop</h4>
       <a href="/shop" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">All Pieces</a>
-      <a href="/shop" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Cups</a>
-      <a href="/shop" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Bowls</a>
-      <a href="/shop" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Vases</a>
+      <a href="/shop?category=Cups" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Cups</a>
+      <a href="/shop?category=Bowls" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Bowls</a>
+      <a href="/shop?category=Vases" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Vases</a>
     </div>
 
     <!-- Studio links -->
-    <div class="flex flex-col gap-2.5 text-sm">
+    <div class="col-span-4 lg:col-span-2 flex flex-col gap-2.5 text-sm">
       <h4 class="font-mono text-[11px] tracking-[.12em] uppercase opacity-65 font-medium mb-1.5">Studio</h4>
       <a href="/about" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">About</a>
       <a href="/contact" class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Contact</a>
@@ -42,7 +42,7 @@ import Vase from "./Vase.astro";
     </div>
 
     <!-- Elsewhere -->
-    <div class="flex flex-col gap-2.5 text-sm">
+    <div class="col-span-4 lg:col-span-2 flex flex-col gap-2.5 text-sm">
       <h4 class="font-mono text-[11px] tracking-[.12em] uppercase opacity-65 font-medium mb-1.5">Elsewhere</h4>
       <a class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Instagram ↗</a>
       <a class="opacity-90 leading-relaxed hover:opacity-100 hover:underline underline-offset-[3px]">Are.na ↗</a>

@@ -1,0 +1,86 @@
+---
+import Base from "../../layouts/Base.astro";
+import WorkshopCard from "../../components/WorkshopCard.astro";
+import { sanity } from "../../lib/sanity";
+import { mapSanityWorkshop, isUpcoming, isPast } from "../../data/workshops";
+
+const rawWorkshops = await sanity.fetch(
+  `*[_type == "workshop"]{
+    _id, title, description, date, startTime, endTime, time, location, price,
+    maxParticipants, spotsRemaining, skillLevel, includes, bring, instructor,
+    "slug": slug.current,
+    "imageUrl": coalesce(images[0].asset->url, image.asset->url),
+    "imageUrls": images[].asset->url
+  }`
+);
+const all = rawWorkshops.map((w: any) => mapSanityWorkshop(w));
+const upcoming = all
+  .filter((w) => isUpcoming(w.date))
+  .sort((a, b) => a.date.localeCompare(b.date));
+const past = all
+  .filter((w) => isPast(w.date))
+  .sort((a, b) => b.date.localeCompare(a.date));
+---
+
+<Base
+  title="Workshops"
+  description="Hands-in-clay workshops at the studio. Upcoming dates and past sessions."
+>
+  <!-- Header -->
+  <section class="grid grid-cols-12 gap-x-5 px-7 pt-20 pb-10">
+    <div class="col-span-12 lg:col-span-8">
+      <span class="font-mono text-xs tracking-[.1em] uppercase opacity-65 inline-block mb-[18px]">[ 01 ] Workshops</span>
+      <h1 class="font-serif text-[clamp(48px,8vw,110px)] leading-[.92] font-normal tracking-tight">
+        Learn the craft,<br/>hands in clay.
+      </h1>
+      <p class="mt-5 text-[15px] leading-relaxed opacity-70 max-w-md">
+        Small-group sessions in the Berlin studio. Beginners welcome.
+      </p>
+    </div>
+  </section>
+
+  <!-- Upcoming -->
+  {upcoming.length > 0 ? (
+    <section class="pb-16">
+      <div class="grid grid-cols-12 items-baseline gap-x-5 px-7 pb-6">
+        <h2 class="col-span-6 font-mono text-xs tracking-[.1em] uppercase opacity-85">Upcoming</h2>
+        <span class="col-span-6 text-right font-mono text-xs tracking-[.1em] uppercase opacity-50">{String(upcoming.length).padStart(2, "0")} dates</span>
+      </div>
+      <div class="grid grid-cols-12 gap-5 px-7">
+        {upcoming.map((w, i) => (
+          <div class="col-span-12 sm:col-span-6 lg:col-span-4">
+            <WorkshopCard workshop={w} index={i} total={upcoming.length} />
+          </div>
+        ))}
+      </div>
+    </section>
+  ) : (
+    <section class="grid grid-cols-12 gap-x-5 px-7 pb-16">
+      <p class="col-span-12 lg:col-span-8 font-serif text-2xl opacity-65 italic">
+        No workshops scheduled at the moment. Check back soon, or
+        <a href="/contact" class="not-italic underline underline-offset-[3px] hover:opacity-90">drop us a line</a>.
+      </p>
+    </section>
+  )}
+
+  <!-- Past -->
+  {past.length > 0 && (
+    <section class="pb-24 border-t border-ink/20">
+      <details class="group">
+        <summary class="grid grid-cols-12 items-baseline gap-x-5 px-7 py-8 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+          <h2 class="col-span-6 font-mono text-xs tracking-[.1em] uppercase opacity-65">Past workshops</h2>
+          <span class="col-span-6 text-right font-mono text-xs tracking-[.1em] uppercase opacity-50 group-open:rotate-180 transition-transform">
+            {String(past.length).padStart(2, "0")} sessions  ▾
+          </span>
+        </summary>
+        <div class="grid grid-cols-12 gap-5 px-7 pb-8 opacity-70">
+          {past.map((w, i) => (
+            <div class="col-span-12 sm:col-span-6 lg:col-span-3">
+              <WorkshopCard workshop={w} index={i} total={past.length} />
+            </div>
+          ))}
+        </div>
+      </details>
+    </section>
+  )}
+</Base>

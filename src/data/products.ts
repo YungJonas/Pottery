@@ -1,15 +1,22 @@
+export type ProductStatus = "open" | "sold" | "reserved";
+
 export interface Product {
   id: string;
   slug: string;
   name: string;
-  category: string;
+  category?: string;
   shape: "Totem" | "Amphora" | "Bottle" | "Donut" | "Handle" | "Wavy" | "Goblet" | "Bowl" | "Plate" | "Cup" | "Jug" | "Spiral";
   color: "terra" | "navy" | "olive" | "sage" | "sand" | "cream" | "charcoal";
   price: number;
   year: string;
   edition: string;
+  shortDescription?: string;
   description: string;
+  care?: string;
+  dimensions?: { h?: number; w?: number };
+  status: ProductStatus;
   imageUrl?: string;
+  images?: string[];
 }
 
 const SHAPE_MAP: Record<string, Product["shape"]> = {
@@ -20,20 +27,35 @@ const SHAPE_MAP: Record<string, Product["shape"]> = {
   Jugs: "Jug",
 };
 
+function deriveStatus(raw: any): ProductStatus {
+  if (raw.status === "open" || raw.status === "sold" || raw.status === "reserved") {
+    return raw.status;
+  }
+  // Legacy fallback
+  return raw.available === false ? "sold" : "open";
+}
+
 export function mapSanityProduct(raw: any, index: number): Product {
-  const category = raw.category || "Uncategorized";
+  const category = raw.category || undefined;
   return {
     id: raw._id,
     slug: raw.slug || "",
     name: raw.title,
     category,
-    shape: SHAPE_MAP[category] || "Bottle",
+    shape: (category && SHAPE_MAP[category]) || "Bottle",
     color: "terra",
     price: raw.price,
     year: "2026",
     edition: "open",
+    shortDescription: raw.shortDescription || undefined,
     description: raw.description || "",
+    care: raw.care || undefined,
+    dimensions: raw.dimensions
+      ? { h: raw.dimensions.height, w: raw.dimensions.width }
+      : undefined,
+    status: deriveStatus(raw),
     imageUrl: raw.imageUrl || undefined,
+    images: Array.isArray(raw.imageUrls) ? raw.imageUrls : undefined,
   };
 }
 
