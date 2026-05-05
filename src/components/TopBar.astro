@@ -16,9 +16,32 @@ import CartButton from "./CartButton";
 
 <header class="sticky top-0 z-50 border-b border-ink bg-bone">
   <!-- Main row -->
-  <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-6 px-7 py-[18px]">
-    <!-- Logo -->
-    <a href="/" class="flex items-center gap-2.5 justify-self-start">
+  <div class="grid grid-cols-[1fr_auto_1fr] items-center px-7 py-[18px]">
+    <!-- Left: burger (mobile) + nav (desktop) -->
+    <div class="flex items-center gap-7 justify-self-start">
+      <!-- Burger (mobile only) -->
+      <button
+        id="menu-toggle"
+        class="md:hidden flex flex-col justify-center gap-[5px] w-6 h-6"
+        aria-label="Open menu"
+        aria-expanded="false"
+      >
+        <span class="burger-line block h-px w-full bg-ink transition-all duration-200"></span>
+        <span class="burger-line block h-px w-full bg-ink transition-all duration-200"></span>
+        <span class="burger-line block h-px w-full bg-ink transition-all duration-200"></span>
+      </button>
+
+      <!-- Nav (desktop) -->
+      <nav class="hidden md:flex gap-7 text-[13px] font-medium uppercase tracking-[.06em]">
+        <a href="/shop" class="relative py-1.5 hover:after:content-[''] hover:after:absolute hover:after:inset-x-0 hover:after:bottom-0 hover:after:h-px hover:after:bg-current">Shop</a>
+        <a href="/workshops" class="relative py-1.5 hover:after:content-[''] hover:after:absolute hover:after:inset-x-0 hover:after:bottom-0 hover:after:h-px hover:after:bg-current">Workshops</a>
+        <a href="/about" class="relative py-1.5 hover:after:content-[''] hover:after:absolute hover:after:inset-x-0 hover:after:bottom-0 hover:after:h-px hover:after:bg-current">About</a>
+        <a href="/contact" class="relative py-1.5 hover:after:content-[''] hover:after:absolute hover:after:inset-x-0 hover:after:bottom-0 hover:after:h-px hover:after:bg-current">Contact</a>
+      </nav>
+    </div>
+
+    <!-- Center: Logo -->
+    <a href="/" class="flex items-center gap-2.5">
       <span class="text-terra">
         <Vase shape="Spiral" fill="#B5532A" class="w-7 h-7" />
       </span>
@@ -27,22 +50,31 @@ import CartButton from "./CartButton";
       </span>
     </a>
 
-    <!-- Nav -->
-    <nav class="flex gap-7 text-[13px] font-medium uppercase tracking-[.06em]">
-      <a href="/shop" class="relative py-1.5 hover:after:content-[''] hover:after:absolute hover:after:inset-x-0 hover:after:bottom-0 hover:after:h-px hover:after:bg-current">Shop</a>
-      <a href="/workshops" class="relative py-1.5 hover:after:content-[''] hover:after:absolute hover:after:inset-x-0 hover:after:bottom-0 hover:after:h-px hover:after:bg-current">Workshops</a>
-      <a href="/about" class="relative py-1.5 hover:after:content-[''] hover:after:absolute hover:after:inset-x-0 hover:after:bottom-0 hover:after:h-px hover:after:bg-current">About</a>
-      <a href="/contact" class="relative py-1.5 hover:after:content-[''] hover:after:absolute hover:after:inset-x-0 hover:after:bottom-0 hover:after:h-px hover:after:bg-current">Contact</a>
-    </nav>
-
-    <!-- Right -->
-    <div class="flex items-center gap-[18px] justify-self-end text-xs uppercase tracking-[.06em]">
+    <!-- Right: cart -->
+    <div class="flex items-center justify-self-end">
       <CartButton client:load />
     </div>
   </div>
 </header>
 
-<style>
+<!-- Mobile drawer (hidden until opened) -->
+<div id="mobile-menu" style="display:none" aria-hidden="true">
+  <!-- Backdrop -->
+  <div id="menu-backdrop" style="position:fixed;inset:0;z-index:40;background:rgba(28,27,23,0.35);opacity:0;transition:opacity 300ms"></div>
+
+  <!-- Panel -->
+  <nav
+    id="menu-panel"
+    style="position:fixed;top:0;right:0;height:100%;width:256px;z-index:41;background:#EFE7DA;border-left:1px solid #1C1B17;display:flex;flex-direction:column;padding-top:6rem;padding-left:2rem;padding-right:2rem;gap:1.75rem;transform:translateX(100%);transition:transform 300ms ease-in-out;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;"
+  >
+    <a href="/shop" style="padding:.5rem 0;border-bottom:1px solid rgba(28,27,23,.1)">Shop</a>
+    <a href="/workshops" style="padding:.5rem 0;border-bottom:1px solid rgba(28,27,23,.1)">Workshops</a>
+    <a href="/about" style="padding:.5rem 0;border-bottom:1px solid rgba(28,27,23,.1)">About</a>
+    <a href="/contact" style="padding:.5rem 0">Contact</a>
+  </nav>
+</div>
+
+<style is:global>
   @keyframes marquee {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
@@ -50,4 +82,56 @@ import CartButton from "./CartButton";
   .animate-marquee {
     animation: marquee 60s linear infinite;
   }
+
+  /* Burger → X */
+  #menu-toggle[aria-expanded="true"] .burger-line:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+  #menu-toggle[aria-expanded="true"] .burger-line:nth-child(2) {
+    opacity: 0;
+  }
+  #menu-toggle[aria-expanded="true"] .burger-line:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
 </style>
+
+<script>
+  const toggle = document.getElementById('menu-toggle')!;
+  const menu = document.getElementById('mobile-menu')!;
+  const backdrop = document.getElementById('menu-backdrop')!;
+  const panel = document.getElementById('menu-panel')!;
+
+  function openMenu() {
+    menu.style.display = 'block';
+    menu.setAttribute('aria-hidden', 'false');
+    toggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+    // Trigger transitions after display:block is painted
+    requestAnimationFrame(() => {
+      backdrop.style.opacity = '1';
+      panel.style.transform = 'translateX(0)';
+    });
+  }
+
+  function closeMenu() {
+    toggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    backdrop.style.opacity = '0';
+    panel.style.transform = 'translateX(100%)';
+    // Hide after transition
+    panel.addEventListener('transitionend', () => {
+      menu.style.display = 'none';
+      menu.setAttribute('aria-hidden', 'true');
+    }, { once: true });
+  }
+
+  toggle.addEventListener('click', () => {
+    menu.style.display === 'none' ? openMenu() : closeMenu();
+  });
+
+  backdrop.addEventListener('click', closeMenu);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu.style.display !== 'none') closeMenu();
+  });
+</script>

@@ -16,7 +16,8 @@ const rawWorkshops = await sanity.fetch(
   } | order(date asc)`
 );
 const allWorkshops = rawWorkshops.map((w: any) => mapSanityWorkshop(w));
-const upcomingWorkshops = allWorkshops.filter((w) => isUpcoming(w.date)).slice(0, 3);
+const upcoming = allWorkshops.filter((w) => isUpcoming(w.date));
+const upcomingWorkshops = (upcoming.length > 0 ? upcoming : allWorkshops).slice(0, 3);
 
 const rawProducts = await sanity.fetch(
   `*[_type == "product"]{
