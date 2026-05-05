@@ -17,7 +17,7 @@ const rawWorkshops = await sanity.fetch(
 );
 const allWorkshops = rawWorkshops.map((w: any) => mapSanityWorkshop(w));
 const upcoming = allWorkshops.filter((w) => isUpcoming(w.date));
-const upcomingWorkshops = (upcoming.length > 0 ? upcoming : allWorkshops).slice(0, 3);
+const upcomingWorkshops = (upcoming.length > 0 ? upcoming : allWorkshops).slice(0, 4);
 
 const rawProducts = await sanity.fetch(
   `*[_type == "product"]{
@@ -51,9 +51,8 @@ const categories = [...new Set(products.map((p) => p.category).filter(Boolean))]
     <section class="pb-20">
       <div class="grid grid-cols-12 gap-x-5 px-7 pt-8 pb-9">
         <div class="col-span-12 lg:col-span-8">
-          <span class="font-mono text-xs tracking-[.1em] uppercase opacity-65 inline-block mb-[18px]">[ 01 ] Workshops</span>
-          <h2 class="font-serif text-[clamp(40px,6vw,88px)] leading-[.95] font-normal tracking-tight">
-            Learn the craft,<br/>hands in clay.
+          <h2 class="font-serif text-[clamp(40px,6vw,80px)] leading-[.96] font-normal tracking-tight">
+            Learn the craft, hands in clay.
           </h2>
         </div>
         <div class="col-span-12 lg:col-span-4 lg:flex lg:justify-end lg:items-end">
@@ -67,7 +66,7 @@ const categories = [...new Set(products.map((p) => p.category).filter(Boolean))]
       </div>
       <div class="grid grid-cols-12 gap-5 px-7">
         {upcomingWorkshops.map((w, i) => (
-          <div class="col-span-12 sm:col-span-6 lg:col-span-4">
+          <div class="col-span-12 sm:col-span-6 lg:col-span-3">
             <WorkshopCard workshop={w} index={i} total={upcomingWorkshops.length} />
           </div>
         ))}

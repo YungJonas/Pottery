@@ -28,7 +28,7 @@ const counter = `${String(index + 1).padStart(2, "0")} / ${String(total).padStar
 
 <a href={`/workshops/${workshop.slug}`} class="group block">
   <article
-    class="aspect-[4/5] flex flex-col justify-between p-5 sm:p-6 overflow-hidden relative"
+    class="aspect-[3/4] flex flex-col justify-between p-5 sm:p-6 overflow-hidden relative"
     style={`background-color: ${bg};`}
   >
     <!-- Top bar -->
@@ -39,7 +39,7 @@ const counter = `${String(index + 1).padStart(2, "0")} / ${String(total).padStar
 
     <!-- Title -->
     <div class="mt-4 flex-1">
-      <h3 class="font-serif text-[clamp(24px,3vw,36px)] leading-[1.05] font-normal uppercase text-paper tracking-tight">
+      <h3 class="font-sans text-[clamp(24px,3vw,36px)] leading-[1.05] font-normal text-paper tracking-tight">
         {workshop.title}
       </h3>
     </div>

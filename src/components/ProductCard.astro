@@ -18,7 +18,7 @@ const dims = `H ${30 + ((index * 3) % 18)} · W ${12 + (index % 6)}cm`;
 <article class="flex flex-col">
   <!-- Frame (linked to detail page) -->
   <a href={`/shop/${product.slug}`} class="block group">
-    <div class="relative aspect-[4/5] p-[18px] flex flex-col border border-ink" style={`background:${bg}`}>
+    <div class="relative aspect-[1/1] p-[18px] flex flex-col border border-ink" style={`background:${bg}`}>
       <div class="flex justify-between font-mono text-[10px] tracking-[.12em] uppercase opacity-70">
         <span>{String(index + 1).padStart(2, "0")}</span>
         <span>{product.edition.toUpperCase()}</span>

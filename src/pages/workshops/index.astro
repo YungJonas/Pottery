@@ -29,7 +29,6 @@ const past = all
   <!-- Header -->
   <section class="grid grid-cols-12 gap-x-5 px-7 pt-20 pb-10">
     <div class="col-span-12 lg:col-span-8">
-      <span class="font-mono text-xs tracking-[.1em] uppercase opacity-65 inline-block mb-[18px]">[ 01 ] Workshops</span>
       <h1 class="font-serif text-[clamp(48px,8vw,110px)] leading-[.92] font-normal tracking-tight">
         Learn the craft,<br/>hands in clay.
       </h1>
@@ -43,8 +42,8 @@ const past = all
   {upcoming.length > 0 ? (
     <section class="pb-16">
       <div class="grid grid-cols-12 items-baseline gap-x-5 px-7 pb-6">
-        <h2 class="col-span-6 font-mono text-xs tracking-[.1em] uppercase opacity-85">Upcoming</h2>
-        <span class="col-span-6 text-right font-mono text-xs tracking-[.1em] uppercase opacity-50">{String(upcoming.length).padStart(2, "0")} dates</span>
+        <h2 class="col-span-6 font-mono text-xs tracking-[.1em] opacity-85">Upcoming</h2>
+        <span class="col-span-6 text-right font-mono text-xs tracking-[.1em] opacity-50">{String(upcoming.length).padStart(2, "0")} dates</span>
       </div>
       <div class="grid grid-cols-12 gap-5 px-7">
         {upcoming.map((w, i) => (
