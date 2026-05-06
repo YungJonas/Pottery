@@ -78,13 +78,13 @@ const skillLevelLabel: Record<string, string> = {
   image={ogImage}
 >
   <!-- Breadcrumb -->
-  <nav class="px-7 pt-8 font-mono text-[11px] tracking-[.12em] uppercase opacity-65">
+  <nav class="px-4 sm:px-7 pt-8 font-mono text-[11px] tracking-[.12em] uppercase opacity-65">
     <a href="/workshops" class="hover:opacity-100 hover:underline underline-offset-[3px]">Workshops</a>
     <span class="px-2 opacity-40">/</span>
     <span>{workshop.title}</span>
   </nav>
 
-  <main class="grid grid-cols-12 gap-x-10 lg:gap-x-16 px-7 pt-6 pb-24">
+  <main class="grid grid-cols-12 gap-x-10 lg:gap-x-16 px-4 sm:px-7 pt-6 pb-24">
     <!-- Image / Gallery -->
       <div class="col-span-12 md:col-span-6">
         {galleryImages.length > 0 ? (

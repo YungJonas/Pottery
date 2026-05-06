@@ -27,7 +27,7 @@ const past = all
   description="Hands-in-clay workshops at the studio. Upcoming dates and past sessions."
 >
   <!-- Header -->
-  <section class="grid grid-cols-12 gap-x-5 px-7 pt-20 pb-10">
+  <section class="grid grid-cols-12 gap-x-5 px-4 sm:px-7 pt-20 pb-10">
     <div class="col-span-12 lg:col-span-8">
       <h1 class="font-serif text-[clamp(48px,8vw,110px)] leading-[.92] font-normal tracking-tight">
         Learn the craft,<br/>hands in clay.
@@ -41,11 +41,11 @@ const past = all
   <!-- Upcoming -->
   {upcoming.length > 0 ? (
     <section class="pb-16">
-      <div class="grid grid-cols-12 items-baseline gap-x-5 px-7 pb-6">
+      <div class="grid grid-cols-12 items-baseline gap-x-5 px-4 sm:px-7 pb-6">
         <h2 class="col-span-6 font-mono text-xs tracking-[.1em] opacity-85">Upcoming</h2>
         <span class="col-span-6 text-right font-mono text-xs tracking-[.1em] opacity-50">{String(upcoming.length).padStart(2, "0")} dates</span>
       </div>
-      <div class="grid grid-cols-12 gap-5 px-7">
+      <div class="grid grid-cols-12 gap-5 px-4 sm:px-7">
         {upcoming.map((w, i) => (
           <div class="col-span-12 sm:col-span-6 lg:col-span-4">
             <WorkshopCard workshop={w} index={i} total={upcoming.length} />
@@ -54,7 +54,7 @@ const past = all
       </div>
     </section>
   ) : (
-    <section class="grid grid-cols-12 gap-x-5 px-7 pb-16">
+    <section class="grid grid-cols-12 gap-x-5 px-4 sm:px-7 pb-16">
       <p class="col-span-12 lg:col-span-8 font-serif text-2xl opacity-65 italic">
         No workshops scheduled at the moment. Check back soon, or
         <a href="/contact" class="not-italic underline underline-offset-[3px] hover:opacity-90">drop us a line</a>.
@@ -66,13 +66,13 @@ const past = all
   {past.length > 0 && (
     <section class="pb-24 border-t border-ink/20">
       <details class="group">
-        <summary class="grid grid-cols-12 items-baseline gap-x-5 px-7 py-8 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+        <summary class="grid grid-cols-12 items-baseline gap-x-5 px-4 sm:px-7 py-8 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
           <h2 class="col-span-6 font-mono text-xs tracking-[.1em] uppercase opacity-65">Past workshops</h2>
           <span class="col-span-6 text-right font-mono text-xs tracking-[.1em] uppercase opacity-50 group-open:rotate-180 transition-transform">
             {String(past.length).padStart(2, "0")} sessions  ▾
           </span>
         </summary>
-        <div class="grid grid-cols-12 gap-5 px-7 pb-8 opacity-70">
+        <div class="grid grid-cols-12 gap-5 px-4 sm:px-7 pb-8 opacity-70">
           {past.map((w, i) => (
             <div class="col-span-12 sm:col-span-6 lg:col-span-3">
               <WorkshopCard workshop={w} index={i} total={past.length} />
