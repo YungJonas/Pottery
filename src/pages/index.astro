@@ -68,10 +68,10 @@ const categories = [...new Set(products.map((p) => p.category).filter(Boolean))]
       </div>
       <div
         x-ref="slider"
-        class="flex gap-5 pl-4 sm:pl-7 overflow-x-auto scroll-smooth snap-x snap-mandatory [scroll-padding-left:1rem] sm:[scroll-padding-left:1.75rem] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        class="flex gap-2 sm:gap-5 px-4 sm:px-7 overflow-x-auto scroll-smooth snap-x snap-mandatory [scroll-padding-left:1rem] sm:[scroll-padding-left:1.75rem] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {upcomingWorkshops.map((w, i) => (
-          <div class="snap-start shrink-0 w-[calc(100vw-3.5rem)] sm:w-[calc(50vw-2.5rem)] lg:w-[calc(25vw-2rem)]">
+          <div class="snap-start shrink-0 w-[calc(100vw-4rem)] sm:w-[calc(50vw-2.5rem)] lg:w-[calc(25vw-2rem)]">
             <WorkshopCard workshop={w} index={i} total={upcomingWorkshops.length} />
           </div>
         ))}
