@@ -4,7 +4,7 @@ import type { Workshop } from "../data/workshops";
 interface Props {
   workshop: Pick<
     Workshop,
-    "title" | "slug" | "date" | "time" | "location" | "price"
+    "title" | "slug" | "date" | "time" | "location" | "price" | "imageUrl"
   >;
   index: number;
   total: number;
@@ -21,15 +21,31 @@ const formattedDate = dateObj.toLocaleDateString("de-DE", { day: "numeric", mont
 
 <a href={`/workshops/${workshop.slug}`} class="group block">
   <article
-    class="aspect-[3/4] flex flex-col justify-between p-5 sm:p-6 overflow-hidden relative border border-black rounded-[8px]"
+    class="aspect-[3/4] flex flex-col overflow-hidden relative border border-black rounded-[8px]"
     style={`background-color: ${bg};`}
   >
-    <!-- Title + metadata -->
-    <div class="mt-2 flex-1">
-      <h3 class="font-serif text-[clamp(28px,3vw,40px)] leading-[1.05] font-normal text-paper tracking-tight">
+    <!-- Cover image — full bleed, no padding -->
+    <div class="flex-1 overflow-hidden">
+      {workshop.imageUrl ? (
+        <img
+          src={workshop.imageUrl}
+          alt={workshop.title}
+          class="w-full h-full object-cover"
+        />
+      ) : (
+        <div class="w-full h-full bg-paper/10" />
+      )}
+    </div>
+
+    <!-- Content -->
+    <div class="p-5 sm:p-6">
+      <!-- Title -->
+      <h3 class="font-serif text-[clamp(28px,3vw,32px)] leading-[1.05] font-normal text-paper tracking-tight">
         {workshop.title}
       </h3>
-      <div class="grid grid-cols-2 gap-x-4 gap-y-3 border-paper/30 pt-3">
+
+      <!-- Metadata -->
+      <div class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3">
         <div class="flex flex-col gap-y-3 font-sans text-paper">
           <div>
             <span class="block text-xs tracking-[.08em] opacity-60">Datum</span>
@@ -51,13 +67,13 @@ const formattedDate = dateObj.toLocaleDateString("de-DE", { day: "numeric", mont
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- CTA -->
-    <div class="mt-auto pt-4">
-      <span class="block w-full text-center font-sans text-sm font-normal rounded-full py-4 px-4 transition-transform hover:-translate-y-px" style="background: rgb(28, 27, 23); color: rgb(246, 241, 230);">
-        Jetzt anmelden
-      </span>
+      <!-- CTA -->
+      <div class="mt-4">
+        <span class="block w-full text-center font-sans text-sm font-normal rounded-full py-4 px-4 transition-transform hover:-translate-y-px" style="background: rgb(28, 27, 23); color: rgb(246, 241, 230);">
+          Jetzt anmelden
+        </span>
+      </div>
     </div>
   </article>
 </a>
