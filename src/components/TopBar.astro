@@ -1,18 +1,24 @@
 ---
 import Vase from "./Vase.astro";
 import CartButton from "./CartButton";
+
+interface Props {
+  showMarquee?: boolean;
+}
+const { showMarquee = true } = Astro.props;
 ---
 
-<!-- Marquee -->
-<div class="overflow-hidden border-b border-ink/20 h-9 flex items-center bg-white">
-  <div class="flex whitespace-nowrap animate-marquee font-mono text-xs tracking-[.1em]">
-    {Array.from({ length: 6 }).map(() => (
-      <span class="pr-12">
-        HANDMADE POTTERY <em class="not-italic px-4 opacity-40">·</em> SLOW MORNINGS <em class="not-italic px-4 opacity-40">·</em> SHIPPED FROM THE STUDIO <em class="not-italic px-4 opacity-40">·</em> FREE SHIPPING OVER €120 <em class="not-italic px-4 opacity-40">·</em>
-      </span>
-    ))}
+{showMarquee && (
+  <div class="overflow-hidden border-b border-ink/20 h-9 flex items-center bg-white">
+    <div class="flex whitespace-nowrap animate-marquee font-mono text-xs tracking-[.1em]">
+      {Array.from({ length: 6 }).map(() => (
+        <span class="pr-12">
+          HANDMADE POTTERY <em class="not-italic px-4 opacity-40">·</em> SLOW MORNINGS <em class="not-italic px-4 opacity-40">·</em> SHIPPED FROM THE STUDIO <em class="not-italic px-4 opacity-40">·</em> FREE SHIPPING OVER €120 <em class="not-italic px-4 opacity-40">·</em>
+        </span>
+      ))}
+    </div>
   </div>
-</div>
+)}
 
 <header class="sticky top-0 z-50 border-b border-ink bg-bone">
   <!-- Main row -->

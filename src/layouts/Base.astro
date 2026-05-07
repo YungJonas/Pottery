@@ -7,9 +7,10 @@ interface Props {
   title: string;
   description?: string;
   image?: string;
+  showMarquee?: boolean;
 }
 
-const { title, description = "Handmade pottery, shaped by hand, one piece at a time.", image } = Astro.props;
+const { title, description = "Handmade pottery, shaped by hand, one piece at a time.", image, showMarquee = true } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
 import "../styles/global.css";
@@ -39,7 +40,7 @@ import "../styles/global.css";
     {image && <meta name="twitter:image" content={image} />}
   </head>
   <body class="min-h-screen">
-    <TopBar />
+    <TopBar showMarquee={showMarquee} />
     <slot />
     <Footer />
     <CartDrawer client:load />
