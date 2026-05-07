@@ -48,17 +48,30 @@ const categories = [...new Set(products.map((p) => p.category).filter(Boolean))]
 
   <!-- Workshops -->
   {upcomingWorkshops.length > 0 && (
-    <section class="pb-20">
-      <div class="grid grid-cols-12 gap-x-5 px-4 sm:px-7 pt-8 pb-9">
-        <div class="col-span-12">
-          <h2 class="font-serif text-[clamp(28px,4vw,56px)] leading-[1.1] font-[440] tracking-[-0.03em]">
-            Anstehende Workshops:
-          </h2>
+    <section class="pb-20" x-data="{}">
+      <div class="flex items-end justify-between px-4 sm:px-7 pt-8 pb-9">
+        <h2 class="font-serif text-[clamp(28px,4vw,56px)] leading-[1.1] font-[440] tracking-[-0.03em]">
+          Anstehende Workshops:
+        </h2>
+        <div class="flex gap-2 pb-1">
+          <button
+            @click="$refs.slider.scrollBy({ left: -$refs.slider.offsetWidth, behavior: 'smooth' })"
+            class="size-10 rounded-full border border-black flex items-center justify-center hover:bg-black hover:text-paper transition-colors"
+            aria-label="Zurück"
+          >&#8592;</button>
+          <button
+            @click="$refs.slider.scrollBy({ left: $refs.slider.offsetWidth, behavior: 'smooth' })"
+            class="size-10 rounded-full border border-black flex items-center justify-center hover:bg-black hover:text-paper transition-colors"
+            aria-label="Weiter"
+          >&#8594;</button>
         </div>
       </div>
-      <div class="grid grid-cols-12 gap-5 px-4 sm:px-7">
+      <div
+        x-ref="slider"
+        class="flex gap-5 pl-4 sm:pl-7 overflow-x-auto scroll-smooth snap-x snap-mandatory [scroll-padding-left:1rem] sm:[scroll-padding-left:1.75rem] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         {upcomingWorkshops.map((w, i) => (
-          <div class="col-span-12 sm:col-span-6 lg:col-span-3">
+          <div class="snap-start shrink-0 w-[calc(100vw-3.5rem)] sm:w-[calc(50vw-2.5rem)] lg:w-[calc(25vw-2rem)]">
             <WorkshopCard workshop={w} index={i} total={upcomingWorkshops.length} />
           </div>
         ))}
