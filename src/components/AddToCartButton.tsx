@@ -10,6 +10,7 @@ interface Props {
   category: string;
   edition: string;
   imageUrl?: string;
+  className?: string;
 }
 
 export default function AddToCartButton(props: Props) {
@@ -33,7 +34,7 @@ export default function AddToCartButton(props: Props) {
   return (
     <button
       onClick={handleClick}
-      className="px-3.5 py-2.5 rounded-full text-xs tracking-[.06em] uppercase font-semibold hover:-translate-y-px transition-all"
+      className={`px-3.5 py-2.5 rounded-full text-xs tracking-[.06em] uppercase font-semibold hover:-translate-y-px transition-all${props.className ? ` ${props.className}` : ""}`}
       style={{
         background: added ? "#5C6233" : "#1C1B17",
         color: "#F6F1E6",
